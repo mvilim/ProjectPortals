@@ -279,7 +279,13 @@ public abstract class Portal implements DataSerializable {
 
 	public static String serialize(Portal portal) {
 		try {
-			return DataFormats.JSON.write(portal.toContainer());
+			if (portal instanceof Server) {
+				Server server = (Server) portal;
+				return DataFormats.JSON.write(server.toContainer());
+			} else {
+				Local local = (Local) portal;
+				return DataFormats.JSON.write(local.toContainer());
+			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			return null;
@@ -288,10 +294,17 @@ public abstract class Portal implements DataSerializable {
 
 	public static Portal deserialize(String portal) {
 		try {
-			return Sponge.getDataManager().deserialize(Portal.class, DataFormats.JSON.read(portal)).get();
+			DataContainer container = DataFormats.JSON.read(portal);
+			
+			try {
+				return Sponge.getDataManager().deserialize(Local.class, container).get();
+			} catch (Exception e) {
+				return Sponge.getDataManager().deserialize(Server.class, container).get();
+			}
 		} catch (InvalidDataException | IOException e) {
 			e.printStackTrace();
 			return null;
 		}
+		
 	}
 }
