@@ -18,8 +18,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -266,7 +265,7 @@ public class PortalService {
 			Portal.Server server = (Portal.Server) portal;
 
 			Consumer<String> consumer = (serverName) -> {
-				TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, server.getServer(), server.getPrice(), server.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), server));
+				TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, server.getServer(), server.getPrice(), server.getPermission(), Cause.of(NamedCause.source(player)));
 
 				if (!Sponge.getEventManager().post(teleportEvent)) {
 					BungeeManager.connect(player, teleportEvent.getDestination());
@@ -298,7 +297,7 @@ public class PortalService {
 							if(optionalLocation.isPresent()) {
 								Location<World> spawnLocation = optionalLocation.get();
 								
-								com.gmail.trentech.pjp.events.TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, local.getPrice(), local.force(), local.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), local));
+								com.gmail.trentech.pjp.events.TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, local.getPrice(), local.force(), local.getPermission(), Cause.of(NamedCause.source(player)));
 
 								if (!Sponge.getEventManager().post(teleportEvent)) {
 									spawnLocation = teleportEvent.getDestination();
@@ -319,7 +318,7 @@ public class PortalService {
 				if (optionalSpawnLocation.isPresent()) {
 					Location<World> spawnLocation = optionalSpawnLocation.get();
 		
-					com.gmail.trentech.pjp.events.TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, local.getPrice(), local.force(), local.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), local));
+					com.gmail.trentech.pjp.events.TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, local.getPrice(), local.force(), local.getPermission(), Cause.of(NamedCause.source(player)));
 		
 					if (!Sponge.getEventManager().post(teleportEvent)) {
 						spawnLocation = teleportEvent.getDestination();

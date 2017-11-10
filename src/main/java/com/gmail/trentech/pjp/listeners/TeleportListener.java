@@ -8,12 +8,10 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.ResultType;
@@ -74,7 +72,7 @@ public class TeleportListener {
 
 				UniqueAccount account = economy.getOrCreateAccount(player.getUniqueId()).get();
 
-				if (account.withdraw(economy.getDefaultCurrency(), new BigDecimal(price), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), player)).getResult() != ResultType.SUCCESS) {
+				if (account.withdraw(economy.getDefaultCurrency(), new BigDecimal(price), Cause.of(NamedCause.source(player))).getResult() != ResultType.SUCCESS) {
 					player.sendMessage(Text.of(TextColors.DARK_RED, "Not enough money. You need $", new DecimalFormat("#,###,##0.00").format(price)));
 					event.setCancelled(true);
 					return;
@@ -134,25 +132,6 @@ public class TeleportListener {
 			}
 		} finally {
 			timings.onTeleportEventLocal().stopTimingIfSync();
-		}
-	}
-
-	@Listener
-	public void onTeleportEventServer(TeleportEvent.Server event) {
-		timings.onTeleportEventServer().startTimingIfSync();
-
-		try {
-			Player player = event.getPlayer();
-
-			Optional<PluginContainer> optionalPlugin = Sponge.getPluginManager().getPlugin("spongycord");
-
-			if (!optionalPlugin.isPresent()) {
-				player.sendMessage(Text.of(TextColors.DARK_RED, "Bungee portals require Spongee plugin dependency"));
-				event.setCancelled(true);
-				return;
-			}
-		} finally {
-			timings.onTeleportEventServer().stopTimingIfSync();
 		}
 	}
 

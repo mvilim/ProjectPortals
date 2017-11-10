@@ -13,8 +13,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
@@ -58,7 +57,7 @@ public class CMDBack implements CommandExecutor {
 			}
 		}
 
-		Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, 0, true, Optional.empty(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), player));
+		Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, 0, true, Optional.empty(), Cause.of(NamedCause.source(player)));
 
 		if (!Sponge.getEventManager().post(teleportEvent)) {
 			spawnLocation = teleportEvent.getDestination();
