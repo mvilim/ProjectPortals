@@ -9,7 +9,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -74,7 +73,7 @@ public class LegacyBuilder {
 			Optional<ParticleColor> color = Particles.getDefaultColor("creation", particle.isColorable());
 
 			for (Location<World> location : portal.getProperties().get().getFill()) {
-				if (!location.getExtent().setBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ(), block, BlockChangeFlag.NONE)) {
+				if (!location.getExtent().setBlock(location.getBlockX(), location.getBlockY(), location.getBlockZ(), block)) {
 					return false;
 				}
 
