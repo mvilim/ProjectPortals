@@ -47,7 +47,7 @@ public class CMDParticle implements CommandExecutor {
 			if (particle.isColorable()) {
 				color = Optional.of(args.<ParticleColor>getOne("color").get());
 			} else {
-				src.sendMessage(Text.of(TextColors.YELLOW, "Colors currently only works with REDSTONE type"));
+				src.sendMessage(Text.of(TextColors.YELLOW, "Colors currently only works with REDSTONE and MOB_SPELL"));
 			}
 		}
 
