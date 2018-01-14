@@ -160,7 +160,7 @@ public class CMDCreate implements CommandExecutor {
 				coordinate = Optional.of(new Coordinate(world.get(), false, false));
 			}
 
-			if (args.hasAny("rotation")) {
+			if (args.hasAny("direction")) {
 				rotation.set(args.<Rotation>getOne("direction").get());
 			}
 
