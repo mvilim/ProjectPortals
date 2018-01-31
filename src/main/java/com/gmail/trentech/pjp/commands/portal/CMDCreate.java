@@ -64,6 +64,9 @@ public class CMDCreate implements CommandExecutor {
 			throw new CommandException(Text.of(TextColors.RED, name, " already exists"), false);
 		}
 
+		if (!args.hasAny("destination")) {
+			throw new CommandException(Text.builder().onClick(TextActions.executeCallback(help.execute())).append(help.getUsageText()).build(), false);
+		}
 		String destination = args.<String>getOne("destination").get();
 
 		Optional<Coordinate> coordinate = Optional.empty();
