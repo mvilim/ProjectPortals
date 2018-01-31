@@ -10,8 +10,12 @@ import static com.gmail.trentech.pjp.data.DataQueries.PROPERTIES;
 import static com.gmail.trentech.pjp.data.DataQueries.ROTATION;
 import static com.gmail.trentech.pjp.data.DataQueries.SERVER;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
@@ -20,6 +24,7 @@ import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataFormats;
 import org.spongepowered.api.data.persistence.InvalidDataException;
+import org.spongepowered.api.data.persistence.InvalidDataFormatException;
 
 import com.gmail.trentech.pjp.portal.features.Command;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
@@ -277,30 +282,30 @@ public abstract class Portal implements DataSerializable {
 		WARP;
 	}
 
-	public static String serialize(Portal portal) {
+	public static byte[] serialize(Portal portal) {
 		try {
-			if (portal instanceof Server) {
-				Server server = (Server) portal;
-				return DataFormats.JSON.write(server.toContainer());
-			} else {
-				Local local = (Local) portal;
-				return DataFormats.JSON.write(local.toContainer());
-			}
+			ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
+			GZIPOutputStream gZipOutStream = new GZIPOutputStream(byteOutStream);
+			DataFormats.NBT.writeTo(gZipOutStream, portal.toContainer());
+			gZipOutStream.close();
+			return byteOutStream.toByteArray();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
-		}
+		}	
 	}
 
-	public static Portal deserialize(String portal) {
+	public static Portal deserialize(byte[] bytes) {
 		DataContainer container;
 		try {
-			container = DataFormats.JSON.read(portal);
-		} catch (InvalidDataException | IOException e) {
-			e.printStackTrace();
+			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(bytes);
+			GZIPInputStream gZipInputSteam = new GZIPInputStream(byteInputStream);
+			container = DataFormats.NBT.readFrom(gZipInputSteam);
+		} catch (InvalidDataFormatException | IOException e1) {
+			e1.printStackTrace();
 			return null;
 		}
-		
+
 		if(container.contains(SERVER)) {
 			try {
 				return Sponge.getDataManager().deserialize(Server.class, container).get();

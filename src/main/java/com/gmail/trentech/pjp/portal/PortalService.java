@@ -122,7 +122,7 @@ public class PortalService {
 
 				Portal portal;
 				try {
-					portal = Portal.deserialize(result.getString("Data"));
+					portal = Portal.deserialize(result.getBytes("Data"));
 					
 					portal.setName(name);
 
@@ -157,7 +157,7 @@ public class PortalService {
 			PreparedStatement statement = connection.prepareStatement("INSERT into " + sqlManager.getPrefix("PORTALS") + " (Name, Data) VALUES (?, ?)");
 
 			statement.setString(1, portal.getName());
-			statement.setString(2, Portal.serialize(portal));
+			statement.setBytes(2, Portal.serialize(portal));
 
 			statement.executeUpdate();
 
@@ -192,7 +192,7 @@ public class PortalService {
 
 			PreparedStatement statement = connection.prepareStatement("UPDATE " + sqlManager.getPrefix("PORTALS") + " SET Data = ? WHERE Name = ?");
 
-			statement.setString(1, Portal.serialize(portal));
+			statement.setBytes(1, Portal.serialize(portal));
 			statement.setString(2, portal.getName());
 
 			statement.executeUpdate();
