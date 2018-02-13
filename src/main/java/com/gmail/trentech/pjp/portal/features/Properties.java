@@ -95,7 +95,7 @@ public class Properties implements DataSerializable {
 
 	private void updateClient(Player player, boolean reset) {
 		BlockState state = getBlock();
-
+		
 		Sponge.getScheduler().createTaskBuilder().delayTicks(5).execute(c -> {
 			for (Location<World> location : getFill()) {
 				Optional<Chunk> optionalChunk = location.getExtent().getChunk(location.getChunkPosition());
@@ -111,7 +111,7 @@ public class Properties implements DataSerializable {
 		}).submit(Main.getPlugin());
 	}
 
-	public void update(boolean reset) {
+	public void blockUpdate(boolean reset) {
 		World world = getFrame().get(0).getExtent();
 
 		Predicate<Entity> filter = e -> {
@@ -124,62 +124,69 @@ public class Properties implements DataSerializable {
 	}
 
 	private BlockState getBlock() {
-		BlockState blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
+		if(getParticle().getName().equalsIgnoreCase("PORTAL_SHIMMER")) {
+			BlockState blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
 
-		List<Vector3i> frameV = new ArrayList<>();
+			List<Vector3i> frameV = new ArrayList<>();
 
-		for (Location<World> location : getFrame()) {
-			frameV.add(location.getBlockPosition());
-		}
-
-		for (Location<World> location : getFill()) {
-			Location<World> east = location.getRelative(Direction.EAST);
-			Location<World> west = location.getRelative(Direction.WEST);
-			Location<World> north = location.getRelative(Direction.NORTH);
-			Location<World> south = location.getRelative(Direction.SOUTH);
-			Location<World> up = location.getRelative(Direction.UP);
-			Location<World> down = location.getRelative(Direction.DOWN);
-
-			if (frameV.contains(east.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-				break;
-			} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-				break;
-			} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-				break;
-			} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-				break;
-			} else if (frameV.contains(north.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-				break;
-			} else if (frameV.contains(south.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-				break;
-			} else if (frameV.contains(north.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-				break;
-			} else if (frameV.contains(south.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-				blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-				break;
-			} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(north.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-				blockState = BlockTypes.END_PORTAL.getDefaultState();
-				break;
-			} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(north.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-				blockState = BlockTypes.END_PORTAL.getDefaultState();
-				break;
-			} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(south.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-				blockState = BlockTypes.END_PORTAL.getDefaultState();
-				break;
-			} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(south.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-				blockState = BlockTypes.END_PORTAL.getDefaultState();
-				break;
+			for (Location<World> location : getFrame()) {
+				frameV.add(location.getBlockPosition());
 			}
-		}
 
-		return blockState;
+			for (Location<World> location : getFill()) {
+				Location<World> east = location.getRelative(Direction.EAST);
+				Location<World> west = location.getRelative(Direction.WEST);
+				Location<World> north = location.getRelative(Direction.NORTH);
+				Location<World> south = location.getRelative(Direction.SOUTH);
+				Location<World> up = location.getRelative(Direction.UP);
+				Location<World> down = location.getRelative(Direction.DOWN);
+
+				if (frameV.contains(east.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
+					break;
+				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
+					break;
+				} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
+					break;
+				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
+					break;
+				} else if (frameV.contains(north.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
+					break;
+				} else if (frameV.contains(south.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
+					break;
+				} else if (frameV.contains(north.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
+					break;
+				} else if (frameV.contains(south.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
+					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
+					break;
+				} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(north.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
+					blockState = BlockTypes.END_PORTAL.getDefaultState();
+					break;
+				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(north.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
+					blockState = BlockTypes.END_PORTAL.getDefaultState();
+					break;
+				} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(south.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
+					blockState = BlockTypes.END_PORTAL.getDefaultState();
+					break;
+				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(south.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
+					blockState = BlockTypes.END_PORTAL.getDefaultState();
+					break;
+				}
+			}
+			return blockState;
+		} else if(getParticle().getName().equalsIgnoreCase("WATER_FLOW")) {
+			return BlockTypes.WATER.getDefaultState();
+		} else if(getParticle().getName().equalsIgnoreCase("LAVA_FLOW")) {
+			return BlockTypes.LAVA.getDefaultState();
+		}
+		
+		return BlockTypes.STONE.getDefaultState();
 	}
 
 	@Override

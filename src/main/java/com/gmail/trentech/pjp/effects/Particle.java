@@ -1,5 +1,6 @@
 package com.gmail.trentech.pjp.effects;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -16,8 +17,8 @@ import org.spongepowered.api.world.World;
 import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjp.Main;
 import com.gmail.trentech.pjp.portal.Portal;
-import com.gmail.trentech.pjp.portal.PortalService;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
+import com.gmail.trentech.pjp.portal.PortalService;
 
 public class Particle {
 
@@ -104,11 +105,36 @@ public class Particle {
 			return;
 		}
 
-		if (getName().equals("PORTAL2")) {
+		if (getName().equals("PORTAL_SHIMMER") || getName().equals("WATER_FLOW") || getName().equals("LAVA_FLOW")) {
 			Portal portal = Sponge.getServiceManager().provide(PortalService.class).get().get(locations.get(0), PortalType.PORTAL).get();
 
 			Sponge.getScheduler().createTaskBuilder().intervalTicks(getTime()).name(portal.getName()).execute(t -> {
-				portal.getProperties().get().update(false);
+				portal.getProperties().get().blockUpdate(false);
+			}).submit(Main.getPlugin());
+		} else if(getName().equalsIgnoreCase("DRIP_WATER") || getName().equalsIgnoreCase("DRIP_LAVA")) {
+			ArrayList<Location<World>> list = new ArrayList<>();
+			
+			first:
+			for(Location<World> location : locations) {
+				for(Location<World> loc : locations) {
+					if(location.getY() < loc.getY()) {
+						continue first;
+					}
+				}
+				list.add(location);
+			}
+			
+			Sponge.getScheduler().createTaskBuilder().interval(getTime(), TimeUnit.MILLISECONDS).name(name).execute(t -> {
+				ParticleEffect particle = ParticleEffect.builder().type(getType()).build();
+
+				for (Location<World> location : list) {
+					Optional<Chunk> optionalChunk = location.getExtent().getChunk(location.getChunkPosition());
+					
+					if(optionalChunk.isPresent() && optionalChunk.get().isLoaded()) {
+						location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble(), 1, random.nextDouble()));
+						location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble(), 1, random.nextDouble()));
+					}
+				}
 			}).submit(Main.getPlugin());
 		} else {
 			Sponge.getScheduler().createTaskBuilder().interval(getTime(), TimeUnit.MILLISECONDS).name(name).execute(t -> {

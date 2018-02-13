@@ -212,7 +212,7 @@ public class PortalService {
 						break;
 					}
 				}
-				properties.update(true);
+				properties.blockUpdate(true);
 				properties.getParticle().createTask(portal.getName(), properties.getFill(), properties.getParticleColor());
 			}
 
@@ -248,7 +248,7 @@ public class PortalService {
 						break;
 					}
 				}
-				properties.update(true);
+				properties.blockUpdate(true);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

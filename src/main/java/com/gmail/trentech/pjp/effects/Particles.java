@@ -33,11 +33,16 @@ public enum Particles {
 	WATER_SPLASH(new Particle("WATER_SPLASH", ParticleTypes.WATER_SPLASH, 7)),
 	WATER_WAKE(new Particle("WATER_WAKE", ParticleTypes.WATER_WAKE, 7)),
 	WATER_DROP(new Particle("WATER_DROP", ParticleTypes.WATER_DROP, 7)),
-	PORTAL2(new Particle("PORTAL2", ParticleTypes.PORTAL, 40)),
+	PORTAL_SHIMMER(new Particle("PORTAL_SHIMMER", ParticleTypes.PORTAL, 40)),
+	WATER_FLOW(new Particle("WATER_FLOW", null, 40)),
+	LAVA_FLOW(new Particle("LAVA_FLOW", null, 40)),
 	MOB_SPELL(new Particle("MOB_SPELL", ParticleTypes.MOB_SPELL, 50)),
 	AMBIENT_MOB_SPELL(new Particle("AMBIENT_MOB_SPELL", ParticleTypes.AMBIENT_MOB_SPELL, 50)),
 	NONE(new Particle("NONE", null, 0)),
-	BARRIER(new Particle("BARRIER", ParticleTypes.BARRIER, 2000));
+	BARRIER(new Particle("BARRIER", ParticleTypes.BARRIER, 2000)),
+	BLOCK_DUST(new Particle("BLOCK_DUST", ParticleTypes.BLOCK_DUST, 30)),
+	DRIP_WATER(new Particle("DRIP_WATER", ParticleTypes.DRIP_WATER, 10)),
+	DRIP_LAVA(new Particle("DRIP_LAVA", ParticleTypes.DRIP_LAVA, 10));
 	
 	private final Particle particle;
 

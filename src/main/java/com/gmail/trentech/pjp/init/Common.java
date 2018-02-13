@@ -318,7 +318,7 @@ public class Common {
 		if (config.getNode("options", "particles").isVirtual()) {
 			config.getNode("options", "particles").setComment("Particle effect settings");
 			config.getNode("options", "particles", "enable").setValue(true).setComment("Enable particle effects");
-			config.getNode("options", "particles", "portal", "type").setValue("PORTAL2").setComment("Default particle type for portals");
+			config.getNode("options", "particles", "portal", "type").setValue("PORTAL_SHIMMER").setComment("Default particle type for portals");
 			config.getNode("options", "particles", "portal", "color").setValue("NONE").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
 			config.getNode("options", "particles", "teleport", "type").setValue("REDSTONE_DUST").setComment("Default particle type when teleporting");
 			config.getNode("options", "particles", "teleport", "color").setValue("RAINBOW").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
