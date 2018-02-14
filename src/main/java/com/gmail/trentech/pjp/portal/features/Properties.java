@@ -1,72 +1,71 @@
 package com.gmail.trentech.pjp.portal.features;
 
-import static com.gmail.trentech.pjp.data.DataQueries.COLOR;
+import static com.gmail.trentech.pjp.data.DataQueries.BLOCKSTATE;
 import static com.gmail.trentech.pjp.data.DataQueries.FILL;
 import static com.gmail.trentech.pjp.data.DataQueries.FRAME;
 import static com.gmail.trentech.pjp.data.DataQueries.PARTICLE;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
-import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.util.Axis;
-import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import com.flowpowered.math.vector.Vector3i;
-import com.gmail.trentech.pjp.Main;
-import com.gmail.trentech.pjp.effects.Particle;
-import com.gmail.trentech.pjp.effects.ParticleColor;
-import com.gmail.trentech.pjp.effects.Particles;
-
 public class Properties implements DataSerializable {
 
+	private static final DataQuery LOC = of("location");
+	private static final DataQuery INTENSITY = of("intensity");
+	
 	private List<Location<World>> frame = new ArrayList<>();
 	private List<Location<World>> fill = new ArrayList<>();
-	private Particle particle;
-	private Optional<ParticleColor> color;
-
-	public Properties(Particle particle, Optional<ParticleColor> color) {
+	private Optional<ParticleEffect> particle;
+	private Optional<BlockState> blockState;
+	private int intensity = 40;
+	
+	public Properties(Optional<ParticleEffect> particle, Optional<BlockState> blockState, int intensity) {
 		this.particle = particle;
-		this.color = color;
+		this.blockState = blockState;
+		this.intensity = intensity;
 	}
 
-	public Properties(List<Location<World>> frame, List<Location<World>> fill, Particle particle, Optional<ParticleColor> color) {
+	public Properties(List<Location<World>> frame, List<Location<World>> fill, Optional<ParticleEffect> particle, Optional<BlockState> blockState, int intensity) {
 		this.frame = frame;
 		this.fill = fill;
 		this.particle = particle;
-		this.color = color;
+		this.blockState = blockState;
+		this.intensity = intensity;
 	}
 
-	public Particle getParticle() {
+	public Optional<ParticleEffect> getParticle() {
 		return particle;
 	}
 
-	public void setParticle(Particle particle) {
+	public void setParticle(Optional<ParticleEffect> particle) {
 		this.particle = particle;
 	}
 
-	public Optional<ParticleColor> getParticleColor() {
-		return color;
+	public int getIntensity() {
+		return intensity;
+	}
+	
+	public Optional<BlockState> getBlockState() {
+		return blockState;
 	}
 
-	public void setParticleColor(Optional<ParticleColor> color) {
-		this.color = color;
+	public void setBlockState(Optional<BlockState> blockState) {
+		this.blockState = blockState;
 	}
 
 	public List<Location<World>> getFrame() {
@@ -93,102 +92,6 @@ public class Properties implements DataSerializable {
 		fill.remove(location);
 	}
 
-	private void updateClient(Player player, boolean reset) {
-		BlockState state = getBlock();
-		
-		Sponge.getScheduler().createTaskBuilder().delayTicks(5).execute(c -> {
-			for (Location<World> location : getFill()) {
-				Optional<Chunk> optionalChunk = location.getExtent().getChunk(location.getChunkPosition());
-				
-				if(optionalChunk.isPresent() && optionalChunk.get().isLoaded()) {
-					if (reset) {
-						player.resetBlockChange(location.getBlockPosition());
-					} else {
-						player.sendBlockChange(location.getBlockPosition(), state);
-					}
-				}
-			}
-		}).submit(Main.getPlugin());
-	}
-
-	public void blockUpdate(boolean reset) {
-		World world = getFrame().get(0).getExtent();
-
-		Predicate<Entity> filter = e -> {
-			return e.getType().equals(EntityTypes.PLAYER);
-		};
-
-		for (Entity entity : world.getEntities(filter)) {
-			updateClient((Player) entity, reset);
-		}
-	}
-
-	private BlockState getBlock() {
-		if(getParticle().getName().equalsIgnoreCase("PORTAL_SHIMMER")) {
-			BlockState blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-
-			List<Vector3i> frameV = new ArrayList<>();
-
-			for (Location<World> location : getFrame()) {
-				frameV.add(location.getBlockPosition());
-			}
-
-			for (Location<World> location : getFill()) {
-				Location<World> east = location.getRelative(Direction.EAST);
-				Location<World> west = location.getRelative(Direction.WEST);
-				Location<World> north = location.getRelative(Direction.NORTH);
-				Location<World> south = location.getRelative(Direction.SOUTH);
-				Location<World> up = location.getRelative(Direction.UP);
-				Location<World> down = location.getRelative(Direction.DOWN);
-
-				if (frameV.contains(east.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-					break;
-				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-					break;
-				} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-					break;
-				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(north.getBlockPosition()) && !frameV.contains(south.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.X).get();
-					break;
-				} else if (frameV.contains(north.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-					break;
-				} else if (frameV.contains(south.getBlockPosition()) && frameV.contains(up.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-					break;
-				} else if (frameV.contains(north.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-					break;
-				} else if (frameV.contains(south.getBlockPosition()) && frameV.contains(down.getBlockPosition()) && !frameV.contains(east.getBlockPosition()) && !frameV.contains(west.getBlockPosition())) {
-					blockState = BlockTypes.PORTAL.getDefaultState().with(Keys.AXIS, Axis.Z).get();
-					break;
-				} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(north.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-					blockState = BlockTypes.END_PORTAL.getDefaultState();
-					break;
-				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(north.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-					blockState = BlockTypes.END_PORTAL.getDefaultState();
-					break;
-				} else if (frameV.contains(east.getBlockPosition()) && frameV.contains(south.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-					blockState = BlockTypes.END_PORTAL.getDefaultState();
-					break;
-				} else if (frameV.contains(west.getBlockPosition()) && frameV.contains(south.getBlockPosition()) && !frameV.contains(up.getBlockPosition()) && !frameV.contains(down.getBlockPosition())) {
-					blockState = BlockTypes.END_PORTAL.getDefaultState();
-					break;
-				}
-			}
-			return blockState;
-		} else if(getParticle().getName().equalsIgnoreCase("WATER_FLOW")) {
-			return BlockTypes.WATER.getDefaultState();
-		} else if(getParticle().getName().equalsIgnoreCase("LAVA_FLOW")) {
-			return BlockTypes.LAVA.getDefaultState();
-		}
-		
-		return BlockTypes.STONE.getDefaultState();
-	}
-
 	@Override
 	public int getContentVersion() {
 		return 0;
@@ -196,23 +99,27 @@ public class Properties implements DataSerializable {
 
 	@Override
 	public DataContainer toContainer() {
-		DataContainer container = DataContainer.createNew().set(PARTICLE, particle.getName());
-
-		if (color.isPresent()) {
-			container.set(COLOR, color.get().getName());
+		DataContainer container = DataContainer.createNew().set(INTENSITY, intensity);
+		
+		if(particle.isPresent()) {
+			container.set(PARTICLE, particle.get());
 		}
 
-		List<String> frame = new ArrayList<>();
+		if (blockState.isPresent()) {
+			container.set(BLOCKSTATE, blockState.get());
+		}
 
-		for (Location<World> location : this.frame) {
-			frame.add(Coordinate.serialize(location));
+		List<DataView> frame = new LinkedList<>();
+
+		for (Location<World> location :  this.frame) {
+			frame.add(DataContainer.createNew().set(LOC, new Coordinate(location).toContainer()));
 		}
 		container.set(FRAME, frame);
 
-		List<String> fill = new ArrayList<>();
+		List<DataView> fill = new LinkedList<>();
 
-		for (Location<World> location : this.fill) {
-			fill.add(Coordinate.serialize(location));
+		for (Location<World> location :  this.fill) {
+			fill.add(DataContainer.createNew().set(LOC, new Coordinate(location).toContainer()));
 		}
 		container.set(FILL, fill);
 
@@ -227,28 +134,45 @@ public class Properties implements DataSerializable {
 
 		@Override
 		protected Optional<Properties> buildContent(DataView container) throws InvalidDataException {
-			if (container.contains(FRAME, FILL, PARTICLE)) {
-				Particle particle = Particles.get(container.getString(PARTICLE).get()).get();
-				Optional<ParticleColor> color = Optional.empty();
-				List<Location<World>> frame = new ArrayList<>();
-				List<Location<World>> fill = new ArrayList<>();
-
-				if (container.contains(COLOR)) {
-					color = ParticleColor.get(container.getString(COLOR).get());
-				}
-
-				for (String loc : container.getStringList(FRAME).get()) {
-					frame.add(Coordinate.deserialize(loc).get());
-				}
-
-				for (String loc : container.getStringList(FILL).get()) {
-					fill.add(Coordinate.deserialize(loc).get());
-				}
-
-				return Optional.of(new Properties(frame, fill, particle, color));
+			int intensity = 40;
+			Optional<ParticleEffect> particle = Optional.empty();
+			Optional<BlockState> blockState = Optional.empty();
+			List<Location<World>> frame = new ArrayList<>();
+			List<Location<World>> fill = new ArrayList<>();
+			
+			if (container.contains(INTENSITY)) {
+				intensity = container.getInt(INTENSITY).get();
 			}
 
-			return Optional.empty();
+			if (container.contains(FRAME)) {
+				for (DataView data : container.getViewList(FRAME).get()) {
+					frame.add(Sponge.getDataManager().deserialize(Coordinate.class, data.getView(LOC).get()).get().getLocation().get());
+				}
+			}
+
+			if (container.contains(FILL)) {
+				for (DataView data : container.getViewList(FILL).get()) {
+					frame.add(Sponge.getDataManager().deserialize(Coordinate.class, data.getView(LOC).get()).get().getLocation().get());
+				}
+			}
+
+
+			if (container.contains(PARTICLE)) {
+				particle = container.getSerializable(PARTICLE, ParticleEffect.class);
+			}
+
+			if (container.contains(BLOCKSTATE)) {			
+				blockState = container.getSerializable(BLOCKSTATE, BlockState.class);
+			}
+
+			
+			if (container.contains(FILL)) {
+				for (DataView data : container.getViewList(FILL).get()) {
+					fill.add(Sponge.getDataManager().deserialize(Coordinate.class, data.getView(LOC).get()).get().getLocation().get());
+				}
+			}
+
+			return Optional.of(new Properties(frame, fill, particle, blockState, intensity));
 		}
 	}
 }

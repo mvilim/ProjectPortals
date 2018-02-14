@@ -30,7 +30,6 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.title.Title;
-import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -40,8 +39,6 @@ import com.gmail.trentech.pjp.Main;
 import com.gmail.trentech.pjp.commands.CMDBack;
 import com.gmail.trentech.pjp.data.mutable.BedData;
 import com.gmail.trentech.pjp.data.mutable.LastLocationData;
-import com.gmail.trentech.pjp.effects.Particle;
-import com.gmail.trentech.pjp.effects.Particles;
 import com.gmail.trentech.pjp.events.TeleportEvent;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
 import com.gmail.trentech.pjp.utils.Timings;
@@ -102,8 +99,6 @@ public class TeleportListener {
 					return;
 				}
 			}
-			
-			Location<World> src = player.getLocation();
 
 			double price = event.getPrice();
 
@@ -123,9 +118,6 @@ public class TeleportListener {
 				player.sendMessage(Text.of(TextColors.GREEN, "Charged $", new DecimalFormat("#,###,##0.00").format(price)));
 			}
 
-			Particle particle = Particles.getDefaultEffect("teleport");
-			particle.spawnParticle(src, true, Particles.getDefaultColor("teleport", particle.isColorable()));
-			particle.spawnParticle(src.getRelative(Direction.UP), true, Particles.getDefaultColor("teleport", particle.isColorable()));
 		} finally {
 			timings.onTeleportEvent().stopTimingIfSync();
 		}

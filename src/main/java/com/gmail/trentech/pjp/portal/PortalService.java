@@ -34,8 +34,7 @@ import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjc.core.SQLManager;
 import com.gmail.trentech.pjc.core.TeleportManager;
 import com.gmail.trentech.pjp.Main;
-import com.gmail.trentech.pjp.effects.Particle;
-import com.gmail.trentech.pjp.effects.Particles;
+import com.gmail.trentech.pjp.effects.PortalEffect;
 import com.gmail.trentech.pjp.events.TeleportEvent;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.portal.features.Command;
@@ -131,8 +130,7 @@ public class PortalService {
 					Optional<Properties> optionalProperties = portal.getProperties();
 					
 					if (optionalProperties.isPresent()) {
-						Properties properties = portal.getProperties().get();
-						properties.getParticle().createTask(name, properties.getFill(), properties.getParticleColor());
+						PortalEffect.activate(portal);
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -168,8 +166,7 @@ public class PortalService {
 			Optional<Properties> optionalProperties = portal.getProperties();
 			
 			if (optionalProperties.isPresent()) {
-				Properties properties = optionalProperties.get();
-				properties.getParticle().createTask(portal.getName(), properties.getFill(), properties.getParticleColor());
+				PortalEffect.activate(portal);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -180,9 +177,6 @@ public class PortalService {
 		portal.setName(location.getExtent().getName() + ":" + location.getBlockX() + "." + location.getBlockY() + "." + location.getBlockZ());
 
 		create(portal, portal.getName());
-
-		Particle particle = Particles.getDefaultEffect("creation");
-		particle.spawnParticle(location, false, Particles.getDefaultColor("creation", particle.isColorable()));
 	}
 
 	public void update(Portal portal) {
@@ -204,16 +198,14 @@ public class PortalService {
 			Optional<Properties> optionalProperties = portal.getProperties();
 			
 			if (optionalProperties.isPresent()) {
-				Properties properties = optionalProperties.get();
-
 				for (Task task : Sponge.getScheduler().getScheduledTasks()) {
 					if (task.getName().equals(portal.getName())) {
 						task.cancel();
 						break;
 					}
 				}
-				properties.blockUpdate(true);
-				properties.getParticle().createTask(portal.getName(), properties.getFill(), properties.getParticleColor());
+				PortalEffect.deactivate(portal);
+				PortalEffect.activate(portal);
 			}
 
 		} catch (SQLException e) {
@@ -240,15 +232,13 @@ public class PortalService {
 			Optional<Properties> optionalProperties = portal.getProperties();
 			
 			if (optionalProperties.isPresent()) {
-				Properties properties = optionalProperties.get();
-
 				for (Task task : Sponge.getScheduler().getScheduledTasks()) {
 					if (task.getName().equals(portal.getName())) {
 						task.cancel();
 						break;
 					}
 				}
-				properties.blockUpdate(true);
+				PortalEffect.deactivate(portal);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

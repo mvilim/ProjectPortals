@@ -2,7 +2,6 @@ package com.gmail.trentech.pjp.portal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
@@ -13,9 +12,6 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import com.gmail.trentech.pjp.effects.Particle;
-import com.gmail.trentech.pjp.effects.ParticleColor;
-import com.gmail.trentech.pjp.effects.Particles;
 import com.gmail.trentech.pjp.events.ConstructPortalEvent;
 
 public class PortalBuilder {
@@ -73,14 +69,6 @@ public class PortalBuilder {
 	public boolean spawnPortal(Cause cause) {
 		if (isValid()) {
 			if (!Sponge.getEventManager().post(new ConstructPortalEvent(portal.getProperties().get().getFrame(), portal.getProperties().get().getFill(), cause))) {
-
-				Particle effect = Particles.getDefaultEffect("creation");
-				Optional<ParticleColor> effectColor = Particles.getDefaultColor("creation", portal.getProperties().get().getParticle().isColorable());
-
-				for (Location<World> location : portal.getProperties().get().getFill()) {
-					effect.spawnParticle(location, false, effectColor);
-				}
-
 				portal.setProperties(portal.getProperties().get());
 
 				Sponge.getServiceManager().provide(PortalService.class).get().create(portal, portal.getName());

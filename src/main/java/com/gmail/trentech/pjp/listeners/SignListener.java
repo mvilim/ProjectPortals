@@ -22,8 +22,6 @@ import org.spongepowered.api.world.World;
 
 import com.gmail.trentech.pjp.data.Keys;
 import com.gmail.trentech.pjp.data.mutable.SignPortalData;
-import com.gmail.trentech.pjp.effects.Particle;
-import com.gmail.trentech.pjp.effects.Particles;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.PortalService;
 import com.gmail.trentech.pjp.utils.Timings;
@@ -55,9 +53,6 @@ public class SignListener {
 			}
 
 			event.getTargetTile().offer(new SignPortalData(portal));
-
-			Particle particle = Particles.getDefaultEffect("creation");
-			particle.spawnParticle(event.getTargetTile().getLocation(), false, Particles.getDefaultColor("creation", particle.isColorable()));
 
 			player.sendMessage(Text.of(TextColors.DARK_GREEN, "New sign portal created"));
 
