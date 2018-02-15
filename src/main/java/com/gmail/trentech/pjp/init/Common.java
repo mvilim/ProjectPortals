@@ -303,9 +303,6 @@ public class Common {
 		if (config.getNode("options", "portal", "size").isVirtual()) {
 			config.getNode("options", "portal", "size").setValue(100).setComment("Maximum number of blocks a portal can use");
 		}
-		if (config.getNode("options", "portal", "legacy_builder").isVirtual()) {
-			config.getNode("options", "portal", "legacy_builder").setValue(true).setComment("Use legacy portal builder");
-		}
 		if (config.getNode("options", "portal", "teleport_item").isVirtual()) {
 			config.getNode("options", "portal", "teleport_item").setValue(true).setComment("Toggle if portals can teleport items");
 		}

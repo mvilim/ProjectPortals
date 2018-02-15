@@ -1,16 +1,13 @@
 package com.gmail.trentech.pjp.portal.features;
 
-import static com.gmail.trentech.pjp.data.DataQueries.BED_RESPAWN;
-import static com.gmail.trentech.pjp.data.DataQueries.PRESET;
-import static com.gmail.trentech.pjp.data.DataQueries.RANDOM;
-import static com.gmail.trentech.pjp.data.DataQueries.VECTOR3D;
-import static com.gmail.trentech.pjp.data.DataQueries.WORLD;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import java.io.IOException;
 import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
@@ -24,6 +21,12 @@ import com.flowpowered.math.vector.Vector3d;
 
 public class Coordinate implements DataSerializable {
 
+	private static final DataQuery WORLD = of("world");
+	private static final DataQuery VECTOR3D = of("vector3d");
+	private static final DataQuery PRESET = of("preset");
+	private static final DataQuery RANDOM = of("random");
+	private static final DataQuery BED_RESPAWN = of("bedrespawn");
+	
 	private World world;
 	private Optional<Vector3d> vector3d = Optional.empty();
 	private Preset preset = Preset.NONE;

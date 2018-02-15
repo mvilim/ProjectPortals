@@ -20,14 +20,11 @@ import org.spongepowered.api.world.World;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.gmail.trentech.pjc.core.BungeeManager;
-import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjc.help.Help;
-import com.gmail.trentech.pjp.Main;
-import com.gmail.trentech.pjp.listeners.LegacyListener;
 import com.gmail.trentech.pjp.listeners.PortalListener;
-import com.gmail.trentech.pjp.portal.LegacyBuilder;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
+import com.gmail.trentech.pjp.portal.PortalBuilder;
 import com.gmail.trentech.pjp.portal.PortalService;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
 import com.gmail.trentech.pjp.portal.features.Coordinate.Preset;
@@ -135,14 +132,8 @@ public class CMDCreate implements CommandExecutor {
 					server.setProperties(properties);
 					server.setName(name);
 
-					if (ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "portal", "legacy_builder").getBoolean()) {
-						LegacyListener.builders.put(player.getUniqueId(), new LegacyBuilder(server));
-						player.sendMessage(Text.builder().color(TextColors.DARK_GREEN).append(Text.of("Begin building your portal frame, followed by ")).onClick(TextActions.runCommand("/pjp:portal save")).append(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE, "/portal save")).build());
-					} else {
-						PortalListener.builders.put(player.getUniqueId(), server);
-
-						player.sendMessage(Text.of(TextColors.DARK_GREEN, "Right click bottom with empty hand similar to vanilla nether portals "));
-					}
+					PortalListener.builders.put(player.getUniqueId(), new PortalBuilder(server));
+					player.sendMessage(Text.builder().color(TextColors.DARK_GREEN).append(Text.of("Begin building your portal frame, followed by ")).onClick(TextActions.runCommand("/pjp:portal save")).append(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE, "/portal save")).build());
 				};
 				BungeeManager.getServer(consumer2, player);
 			};			
@@ -200,13 +191,8 @@ public class CMDCreate implements CommandExecutor {
 			local.setProperties(properties);
 			local.setName(name);
 
-			if (ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "portal", "legacy_builder").getBoolean()) {
-				LegacyListener.builders.put(player.getUniqueId(), new LegacyBuilder(local));
-				player.sendMessage(Text.builder().color(TextColors.DARK_GREEN).append(Text.of("Begin building your portal frame, followed by ")).onClick(TextActions.runCommand("/pjp:portal save")).append(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE, "/portal save")).build());
-			} else {
-				PortalListener.builders.put(player.getUniqueId(), local);
-				player.sendMessage(Text.of(TextColors.DARK_GREEN, "Right click bottom with empty hand similar to vanilla nether portals "));
-			}
+			PortalListener.builders.put(player.getUniqueId(), new PortalBuilder(local));
+			player.sendMessage(Text.builder().color(TextColors.DARK_GREEN).append(Text.of("Begin building your portal frame, followed by ")).onClick(TextActions.runCommand("/pjp:portal save")).append(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE, "/portal save")).build());
 		}
 
 		return CommandResult.success();

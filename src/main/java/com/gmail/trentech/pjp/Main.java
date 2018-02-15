@@ -32,7 +32,6 @@ import com.gmail.trentech.pjp.init.Commands;
 import com.gmail.trentech.pjp.init.Common;
 import com.gmail.trentech.pjp.listeners.ButtonListener;
 import com.gmail.trentech.pjp.listeners.DoorListener;
-import com.gmail.trentech.pjp.listeners.LegacyListener;
 import com.gmail.trentech.pjp.listeners.LeverListener;
 import com.gmail.trentech.pjp.listeners.PlateListener;
 import com.gmail.trentech.pjp.listeners.PortalListener;
@@ -144,11 +143,7 @@ public class Main {
 		if (modules.getNode("portals").getBoolean()) {
 			Sponge.getEventManager().registerListeners(this, new PortalListener(timings));
 			Sponge.getCommandManager().register(this, new Commands().cmdPortal, "portal", "p");
-
-			if (config.getNode("options", "portal", "legacy_builder").getBoolean()) {
-				Sponge.getEventManager().registerListeners(this, new LegacyListener(timings));
-			}
-
+			
 			getLog().info("Portal module activated");
 		}
 		
@@ -201,11 +196,7 @@ public class Main {
 		if (modules.getNode("portals").getBoolean()) {
 			Sponge.getEventManager().registerListeners(this, new PortalListener(timings));
 			Sponge.getCommandManager().register(this, new Commands().cmdPortal, "portal", "p");
-
-			if (config.getNode("options", "portal", "legacy_builder").getBoolean()) {
-				Sponge.getEventManager().registerListeners(this, new LegacyListener(timings));
-			}
-
+			
 			getLog().info("Portal module activated");
 		}
 		if (modules.getNode("buttons").getBoolean()) {

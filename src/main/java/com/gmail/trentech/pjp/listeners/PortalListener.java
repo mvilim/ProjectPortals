@@ -9,8 +9,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.Living;
@@ -18,18 +18,12 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.event.filter.type.Exclude;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -37,18 +31,18 @@ import com.flowpowered.math.vector.Vector3d;
 import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjp.Main;
 import com.gmail.trentech.pjp.events.ConstructPortalEvent;
+import com.gmail.trentech.pjp.portal.PortalBuilder;
 import com.gmail.trentech.pjp.portal.Portal;
-import com.gmail.trentech.pjp.portal.PortalService;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
+import com.gmail.trentech.pjp.portal.PortalService;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
-import com.gmail.trentech.pjp.rotation.PlayerRotation;
 import com.gmail.trentech.pjp.utils.Timings;
 
 import ninja.leaping.configurate.ConfigurationNode;
 
 public class PortalListener {
 
-	public static ConcurrentHashMap<UUID, Portal> builders = new ConcurrentHashMap<>();
+	public static ConcurrentHashMap<UUID, PortalBuilder> builders = new ConcurrentHashMap<>();
 
 	private Timings timings;
 
@@ -56,6 +50,78 @@ public class PortalListener {
 		this.timings = timings;
 	}
 
+	@Listener
+	public void onChangeBlockEventPlaceCreate(ChangeBlockEvent.Place event, @Root Player player) {
+		timings.onChangeBlockEventPlace().startTiming();
+
+		try {
+			if (!builders.containsKey(player.getUniqueId())) {
+				for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+					Location<World> location = transaction.getFinal().getLocation().get();
+
+					if (!Sponge.getServiceManager().provide(PortalService.class).get().get(location, PortalType.PORTAL).isPresent()) {
+						continue;
+					}
+
+					event.setCancelled(true);
+					break;
+				}
+				return;
+			}
+			PortalBuilder builder = builders.get(player.getUniqueId());
+
+			for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+				if (transaction.getFinal().getState().getType().equals(BlockTypes.FIRE)) {
+					event.setCancelled(true);
+					break;
+				}
+
+				Location<World> location = transaction.getFinal().getLocation().get();
+
+				if (builder.isFill()) {
+					builder.addFill(location);
+				} else {
+					builder.addFrame(location);
+				}
+			}
+		} finally {
+			timings.onChangeBlockEventPlace().stopTiming();
+		}
+	}
+
+	@Listener
+	public void onChangeBlockEventBreakCreate(ChangeBlockEvent.Break event, @Root Player player) {
+		timings.onChangeBlockEventBreak().startTiming();
+
+		try {
+			if (!builders.containsKey(player.getUniqueId())) {
+				for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+					Location<World> location = transaction.getFinal().getLocation().get();
+
+					if (!Sponge.getServiceManager().provide(PortalService.class).get().get(location, PortalType.PORTAL).isPresent()) {
+						continue;
+					}
+
+					event.setCancelled(true);
+					break;
+				}
+				return;
+			}
+			PortalBuilder builder = builders.get(player.getUniqueId());
+
+			for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+				Location<World> location = transaction.getFinal().getLocation().get();
+				if (builder.isFill()) {
+					builder.removeFill(location);
+				} else {
+					builder.removeFrame(location);
+				}
+			}
+		} finally {
+			timings.onChangeBlockEventBreak().stopTiming();
+		}
+	}
+	
 	@Listener
 	public void onConnectionEvent(ClientConnectionEvent.Login event, @Root Player player) {
 		Location<World> location = event.getToTransform().getLocation();
@@ -74,46 +140,6 @@ public class PortalListener {
 				location = optionalLocation.get();
 				event.setToTransform(new Transform<World>(location));
 			}
-		}
-	}
-	
-	@Listener
-	@Exclude(value = { ChangeBlockEvent.Place.class })
-	public void onInteractBlockEventSecondary(InteractBlockEvent.Secondary event, @Root Player player) {
-		timings.onInteractBlockEventSecondary().startTiming();
-
-		try {
-			if (!builders.containsKey(player.getUniqueId())) {
-				return;
-			}
-			Portal portal = builders.get(player.getUniqueId());
-
-			if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent()) {
-				player.sendMessage(Text.of(TextColors.YELLOW, "Hand must be empty"));
-				return;
-			}
-
-			Optional<Location<World>> optionalLocation = event.getTargetBlock().getLocation();
-
-			if (!optionalLocation.isPresent()) {
-				return;
-			}
-			Location<World> location = optionalLocation.get();
-
-			Direction direction = PlayerRotation.getClosest(player.getRotation().getFloorY()).getDirection();
-
-			com.gmail.trentech.pjp.portal.PortalBuilder builder = new com.gmail.trentech.pjp.portal.PortalBuilder(portal, location, direction);
-
-			if (!builder.spawnPortal(Cause.of(EventContext.builder().add(EventContextKeys.CREATOR, player).build(), player))) {
-				player.sendMessage(Text.of(TextColors.DARK_RED, "Not a valid portal shape"));
-				return;
-			}
-
-			builders.remove(player.getUniqueId());
-
-			player.sendMessage(Text.of(TextColors.DARK_GREEN, "Portal ", portal.getName(), " created successfully"));
-		} finally {
-			timings.onInteractBlockEventSecondary().stopTiming();
 		}
 	}
 

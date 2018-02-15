@@ -273,14 +273,16 @@ public class PortalService {
 			Portal.Server server = (Portal.Server) portal;
 
 			Consumer<String> consumer = (serverName) -> {
-				TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, server.getServer(), server.getPrice(), server.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), server));
+				Task.builder().execute(() -> {
+					TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, server.getServer(), server.getPrice(), server.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), server));
 
-				if (!Sponge.getEventManager().post(teleportEvent)) {
-					BungeeManager.connect(player, teleportEvent.getDestination());
-					player.setLocation(player.getWorld().getSpawnLocation());
+					if (!Sponge.getEventManager().post(teleportEvent)) {
+						BungeeManager.connect(player, teleportEvent.getDestination());
+						player.setLocation(player.getWorld().getSpawnLocation());
 
-					bool.set(true);
-				}
+						bool.set(true);
+					}
+				}).submit(Main.instance());
 			};
 			BungeeManager.getServer(consumer, player);
 		} else {

@@ -1,12 +1,12 @@
 package com.gmail.trentech.pjp.portal.features;
 
-import static com.gmail.trentech.pjp.data.DataQueries.COMMAND;
-import static com.gmail.trentech.pjp.data.DataQueries.SRCTYPE;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
@@ -15,6 +15,9 @@ import org.spongepowered.api.entity.living.player.Player;
 
 public class Command implements DataSerializable {
 
+	private static final DataQuery SRCTYPE = of("src");
+	private static final DataQuery COMMAND = of("command");
+	
 	private String command;
 	private SourceType srcType;
 	

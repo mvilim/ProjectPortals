@@ -14,8 +14,8 @@ import org.spongepowered.api.text.format.TextStyles;
 
 import com.gmail.trentech.pjc.help.Help;
 import com.gmail.trentech.pjp.Main;
-import com.gmail.trentech.pjp.listeners.LegacyListener;
-import com.gmail.trentech.pjp.portal.LegacyBuilder;
+import com.gmail.trentech.pjp.listeners.PortalListener;
+import com.gmail.trentech.pjp.portal.PortalBuilder;
 
 public class CMDSave implements CommandExecutor {
 
@@ -33,10 +33,10 @@ public class CMDSave implements CommandExecutor {
 		}
 		Player player = (Player) src;
 
-		if (!LegacyListener.builders.containsKey(player.getUniqueId())) {
+		if (!PortalListener.builders.containsKey(player.getUniqueId())) {
 			throw new CommandException(Text.of(TextColors.DARK_GREEN, "Not in build mode"), false);
 		}
-		LegacyBuilder builder = LegacyListener.builders.get(player.getUniqueId());
+		PortalBuilder builder = PortalListener.builders.get(player.getUniqueId());
 
 		if (!builder.isFill()) {
 			builder.setFill(true);
@@ -47,7 +47,7 @@ public class CMDSave implements CommandExecutor {
 
 		if (builder.build(player)) {
 			Sponge.getScheduler().createTaskBuilder().delayTicks(20).execute(t -> {
-				LegacyListener.builders.remove(player.getUniqueId());
+				PortalListener.builders.remove(player.getUniqueId());
 			}).submit(Main.getPlugin());
 
 			player.sendMessage(Text.of(TextColors.DARK_GREEN, "Portal ", builder.getPortal().getName(), " created successfully"));

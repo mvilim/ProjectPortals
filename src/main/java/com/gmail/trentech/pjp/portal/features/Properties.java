@@ -1,9 +1,5 @@
 package com.gmail.trentech.pjp.portal.features;
 
-import static com.gmail.trentech.pjp.data.DataQueries.BLOCKSTATE;
-import static com.gmail.trentech.pjp.data.DataQueries.FILL;
-import static com.gmail.trentech.pjp.data.DataQueries.FRAME;
-import static com.gmail.trentech.pjp.data.DataQueries.PARTICLE;
 import static org.spongepowered.api.data.DataQuery.of;
 
 import java.util.ArrayList;
@@ -27,6 +23,10 @@ public class Properties implements DataSerializable {
 
 	private static final DataQuery LOC = of("location");
 	private static final DataQuery INTENSITY = of("intensity");
+	private static final DataQuery FRAME = of("frame");
+	private static final DataQuery FILL = of("fill");
+	private static final DataQuery PARTICLE = of("particle");
+	private static final DataQuery BLOCKSTATE = of("block");
 	
 	private List<Location<World>> frame = new ArrayList<>();
 	private List<Location<World>> fill = new ArrayList<>();
@@ -160,10 +160,9 @@ public class Properties implements DataSerializable {
 
 			if (container.contains(FILL)) {
 				for (DataView data : container.getViewList(FILL).get()) {
-					frame.add(Sponge.getDataManager().deserialize(Coordinate.class, data.getView(LOC).get()).get().getLocation().get());
+					fill.add(Sponge.getDataManager().deserialize(Coordinate.class, data.getView(LOC).get()).get().getLocation().get());
 				}
 			}
-
 
 			if (container.contains(PARTICLE)) {
 				particle = container.getSerializable(PARTICLE, ParticleEffect.class);
@@ -171,13 +170,6 @@ public class Properties implements DataSerializable {
 
 			if (container.contains(BLOCKSTATE)) {			
 				blockState = container.getSerializable(BLOCKSTATE, BlockState.class);
-			}
-
-			
-			if (container.contains(FILL)) {
-				for (DataView data : container.getViewList(FILL).get()) {
-					fill.add(Sponge.getDataManager().deserialize(Coordinate.class, data.getView(LOC).get()).get().getLocation().get());
-				}
 			}
 
 			return Optional.of(new Properties(frame, fill, particle, blockState, intensity));

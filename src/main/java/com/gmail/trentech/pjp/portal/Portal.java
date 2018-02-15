@@ -1,14 +1,6 @@
 package com.gmail.trentech.pjp.portal;
 
-import static com.gmail.trentech.pjp.data.DataQueries.COMMAND;
-import static com.gmail.trentech.pjp.data.DataQueries.COORDINATE;
-import static com.gmail.trentech.pjp.data.DataQueries.FORCE;
-import static com.gmail.trentech.pjp.data.DataQueries.PERMISSION;
-import static com.gmail.trentech.pjp.data.DataQueries.PORTAL_TYPE;
-import static com.gmail.trentech.pjp.data.DataQueries.PRICE;
-import static com.gmail.trentech.pjp.data.DataQueries.PROPERTIES;
-import static com.gmail.trentech.pjp.data.DataQueries.ROTATION;
-import static com.gmail.trentech.pjp.data.DataQueries.SERVER;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +11,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
@@ -33,6 +26,16 @@ import com.gmail.trentech.pjp.rotation.Rotation;
 
 public abstract class Portal implements DataSerializable {
 
+	private static final DataQuery FORCE = of("force");
+	private static final DataQuery PROPERTIES = of("properties");
+	private static final DataQuery PORTAL_TYPE = of("type");
+	private static final DataQuery SERVER = of("server");
+	private static final DataQuery COORDINATE = of("coordinate");
+	private static final DataQuery ROTATION = of("rotation");
+	private static final DataQuery PRICE = of("price");
+	private static final DataQuery PERMISSION = of("permission");
+	private static final DataQuery COMMAND = of("command");
+	
 	private final PortalType type;
 	private String name;
 	private Rotation rotation = Rotation.EAST;
