@@ -1,7 +1,5 @@
 package com.gmail.trentech.pjp.commands.portal;
 
-import java.util.Optional;
-
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -13,18 +11,16 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.gmail.trentech.pjc.help.Help;
-import com.gmail.trentech.pjp.effects.Particle;
-import com.gmail.trentech.pjp.effects.ParticleColor;
-import com.gmail.trentech.pjp.effects.Particles;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.PortalService;
-import com.gmail.trentech.pjp.portal.features.Properties;
+import com.gmail.trentech.pjp.portal.features.Command;
+import com.gmail.trentech.pjp.portal.features.Command.SourceType;
 
-public class CMDParticle implements CommandExecutor {
+public class CMDCommand implements CommandExecutor {
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		Help help = Help.get("portal particle").get();
+		Help help = Help.get("portal price").get();
 		
 		if (args.hasAny("help")) {		
 			help.execute(src);
@@ -36,29 +32,29 @@ public class CMDParticle implements CommandExecutor {
 		}
 		Portal portal = args.<Portal>getOne("name").get();
 
-		if (!args.hasAny("particle")) {
+		if (!args.hasAny("command")) {
 			throw new CommandException(Text.builder().onClick(TextActions.executeCallback(help.execute())).append(help.getUsageText()).build(), false);
 		}
-		Particle particle = args.<Particles>getOne("particle").get().getParticle();
-
-		Optional<ParticleColor> color = Optional.empty();
-
-		if (args.hasAny("color")) {
-			if (particle.isColorable()) {
-				color = Optional.of(args.<ParticleColor>getOne("color").get());
-			} else {
-				src.sendMessage(Text.of(TextColors.YELLOW, "Colors currently only works with REDSTONE and MOB_SPELL"));
-			}
+		
+		String rawCommand = args.<String>getOne("command").get();
+		String source = rawCommand.substring(0, 2);
+		
+		if(rawCommand.length() < 2) {
+			throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
+		}
+		
+		if(source.equalsIgnoreCase("P:")) {
+			portal.setCommand(new Command(SourceType.PLAYER, rawCommand.substring(2)));
+		} else if(source.equalsIgnoreCase("C:")) {
+			portal.setCommand(new Command(SourceType.CONSOLE, rawCommand.substring(2)));
+		} else {
+			throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
 		}
 
-		Properties properties = portal.getProperties().get();
-		properties.setParticle(particle);
-		properties.setParticleColor(color);
-
-		portal.setProperties(properties);
 		Sponge.getServiceManager().provide(PortalService.class).get().update(portal);
+
+		src.sendMessage(Text.of(TextColors.DARK_GREEN, "Set command of portal ", portal.getName()));
 
 		return CommandResult.success();
 	}
-
 }

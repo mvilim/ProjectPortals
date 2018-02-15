@@ -9,9 +9,8 @@ import com.gmail.trentech.pjp.commands.elements.PortalElement;
 import com.gmail.trentech.pjp.commands.home.CMDHome;
 import com.gmail.trentech.pjp.commands.portal.CMDPortal;
 import com.gmail.trentech.pjp.commands.portal.CMDSave;
+import com.gmail.trentech.pjp.commands.portal.CommandParticle;
 import com.gmail.trentech.pjp.commands.warp.CMDWarp;
-import com.gmail.trentech.pjp.effects.ParticleColor;
-import com.gmail.trentech.pjp.effects.Particles;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.rotation.Rotation;
 
@@ -133,10 +132,11 @@ public class Commands {
 		    		GenericArguments.flags().flag("b").flag("f")
 		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
 		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-		    		.valueFlag(GenericArguments.seq(GenericArguments.enumValue(Text.of("particle"), Particles.class), GenericArguments.optional(GenericArguments.enumValue(Text.of("color"), ParticleColor.class))), "e")
-    				.valueFlag(GenericArguments.string(Text.of("price")), "p")
-    				.valueFlag(GenericArguments.string(Text.of("command")), "s")
-    				.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
+//		    		.valueFlag(GenericArguments.seq(GenericArguments.enumValue(Text.of("particle"), Particles.class), GenericArguments.optional(GenericArguments.enumValue(Text.of("color"), ParticleColor.class))), "e")
+//    				.valueFlag(GenericArguments.string(Text.of("price")), "p")
+//    				.valueFlag(GenericArguments.string(Text.of("command")), "s")
+//    				.valueFlag(GenericArguments.string(Text.of("permission")), "n")
+		    		.buildWith(GenericArguments.none()))
 		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDCreate())
 		    .build();
 
@@ -167,15 +167,17 @@ public class Commands {
 		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDRename())
 		    .build();
 	
-	private CommandSpec cmdPortalParticle = CommandSpec.builder()
-		    .description(Text.of("Set particle effects of an existing portal"))
-		    .permission("pjp.cmd.portal.particle")
-		    .arguments(
-		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)), 
-		    		GenericArguments.optional(GenericArguments.enumValue(Text.of("particle"), Particles.class)),
-		    		GenericArguments.optional(GenericArguments.enumValue(Text.of("color"), ParticleColor.class)))
-		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDParticle())
-		    .build();
+//	private CommandSpec cmdPortalParticle = CommandSpec.builder()
+//		    .description(Text.of("Set particle effects of an existing portal"))
+//		    .permission("pjp.cmd.portal.particle")
+//		    .arguments(
+//		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)), 
+//		    		GenericArguments.optional(GenericArguments.catalogedElement(Text.of("particleType"), ParticleType.class)),
+//		    		GenericArguments.optional(GenericArguments.catalogedElement(Text.of("intensity"), ParticleType.class)),
+//		    		GenericArguments.optional(GenericArguments.catalogedElement(Text.of("optionType"), ParticleOption.class)),
+//		    		GenericArguments.optional(new ParticleOptionValueElement(Text.of("option"))))
+//		    .executor(new CommandParticle())
+//		    .build();
 	
 	private CommandSpec cmdPortalPrice = CommandSpec.builder()
 		    .description(Text.of("Set price of an existing portal"))
@@ -183,6 +185,24 @@ public class Commands {
 		    .arguments(
 		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)), 
 		    		GenericArguments.optional(GenericArguments.doubleNum(Text.of("price"))))
+		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDPrice())
+		    .build();
+	
+	private CommandSpec cmdPortalPermission = CommandSpec.builder()
+		    .description(Text.of("Set permission of an existing portal"))
+		    .permission("pjp.cmd.portal.permission")
+		    .arguments(
+		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)), 
+		    		GenericArguments.optional(GenericArguments.string(Text.of("permission"))))
+		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDPrice())
+		    .build();
+	
+	private CommandSpec cmdPortalCommand = CommandSpec.builder()
+		    .description(Text.of("Set command of an existing portal"))
+		    .permission("pjp.cmd.portal.command")
+		    .arguments(
+		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)), 
+		    		GenericArguments.optional(GenericArguments.string(Text.of("command"))))
 		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDPrice())
 		    .build();
 	
@@ -202,11 +222,13 @@ public class Commands {
 		    .description(Text.of("Top level portal command"))
 		    .permission("pjp.cmd.portal")
 		    .child(cmdPortalCreate, "create", "c")
+		    .child(cmdPortalCommand, "command", "cmd")
 		    .child(cmdPortalDestination, "destination", "d")
 		    .child(cmdPortalRemove, "remove", "r")
 		    .child(cmdPortalRename, "rename", "rn")
-		    .child(cmdPortalParticle, "particle", "p")
+		    .child(new CommandParticle(), "particle", "p")
 		    .child(cmdPortalPrice, "price", "pr")
+		    .child(cmdPortalPermission, "permission", "perm")
 		    .child(cmdPortalList, "list", "ls")
 		    .child(cmdSave, "save", "s")
 		    .executor(new CMDPortal())

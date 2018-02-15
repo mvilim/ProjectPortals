@@ -98,6 +98,8 @@ public class Main {
 		
 		Sponge.getServiceManager().setProvider(getPlugin(), PortalService.class, new PortalService());
 
+		Common.initHelp();
+		
 		ConfigurationNode modules = config.getNode("settings", "modules");
 		
 		if (modules.getNode("back").getBoolean()) {
@@ -166,7 +168,7 @@ public class Main {
 			getLog().info("Warp module activated");
 		}
 
-		Common.initHelp();
+
 		Common.initData();
 	}
 

@@ -23,19 +23,14 @@ import com.gmail.trentech.pjc.core.BungeeManager;
 import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjc.help.Help;
 import com.gmail.trentech.pjp.Main;
-import com.gmail.trentech.pjp.effects.Particle;
-import com.gmail.trentech.pjp.effects.ParticleColor;
-import com.gmail.trentech.pjp.effects.Particles;
 import com.gmail.trentech.pjp.listeners.LegacyListener;
 import com.gmail.trentech.pjp.listeners.PortalListener;
 import com.gmail.trentech.pjp.portal.LegacyBuilder;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.portal.PortalService;
-import com.gmail.trentech.pjp.portal.features.Command;
-import com.gmail.trentech.pjp.portal.features.Command.SourceType;
-import com.gmail.trentech.pjp.portal.features.Coordinate.Preset;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
+import com.gmail.trentech.pjp.portal.features.Coordinate.Preset;
 import com.gmail.trentech.pjp.portal.features.Properties;
 import com.gmail.trentech.pjp.rotation.Rotation;
 
@@ -73,39 +68,39 @@ public class CMDCreate implements CommandExecutor {
 		AtomicReference<Rotation> rotation = new AtomicReference<>(Rotation.EAST);
 		AtomicReference<Double> price = new AtomicReference<>(0.0);
 		boolean force = false;
-		AtomicReference<Particle> particle = new AtomicReference<>(Particles.getDefaultEffect("portal"));
-		AtomicReference<Optional<ParticleColor>> color = new AtomicReference<>(Particles.getDefaultColor("portal", particle.get().isColorable()));
-		Optional<String> permission = args.<String>getOne("permission");
-		AtomicReference<Optional<Command>> command = new AtomicReference<>(Optional.empty());
-		
-		if (args.hasAny("price")) {
-			price.set(args.<Double>getOne("price").get());
-		}
-
-		if (args.hasAny("command")) {
-			String rawCommand = args.<String>getOne("command").get();
-			String source = rawCommand.substring(0, 2);
-			
-			if(rawCommand.length() < 2) {
-				throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
-			}
-			
-			if(source.equalsIgnoreCase("P:")) {
-				command.set(Optional.of(new Command(SourceType.PLAYER, rawCommand.substring(2))));
-			} else if(source.equalsIgnoreCase("C:")) {
-				command.set(Optional.of(new Command(SourceType.CONSOLE, rawCommand.substring(2))));
-			} else {
-				throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
-			}
-		}
-		
-		if (args.hasAny("particle")) {
-			particle.set(args.<Particles>getOne("particle").get().getParticle());
-
-			if (args.hasAny("color")) {
-				color.set(Optional.of(args.<ParticleColor>getOne("color").get()));
-			}
-		}
+//		AtomicReference<Particle> particle = new AtomicReference<>(Particles.getDefaultEffect("portal"));
+//		AtomicReference<Optional<ParticleColor>> color = new AtomicReference<>(Particles.getDefaultColor("portal", particle.get().isColorable()));
+//		Optional<String> permission = args.<String>getOne("permission");
+//		AtomicReference<Optional<Command>> command = new AtomicReference<>(Optional.empty()); 
+//		
+//		if (args.hasAny("price")) {
+//			price.set(args.<Double>getOne("price").get());
+//		}
+//
+//		if (args.hasAny("command")) {
+//			String rawCommand = args.<String>getOne("command").get();
+//			String source = rawCommand.substring(0, 2);
+//			
+//			if(rawCommand.length() < 2) {
+//				throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
+//			}
+//			
+//			if(source.equalsIgnoreCase("P:")) {
+//				command.set(Optional.of(new Command(SourceType.PLAYER, rawCommand.substring(2))));
+//			} else if(source.equalsIgnoreCase("C:")) {
+//				command.set(Optional.of(new Command(SourceType.CONSOLE, rawCommand.substring(2))));
+//			} else {
+//				throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
+//			}
+//		}
+//		
+//		if (args.hasAny("particle")) {
+//			particle.set(args.<Particles>getOne("particle").get().getParticle());
+//
+//			if (args.hasAny("color")) {
+//				color.set(Optional.of(args.<ParticleColor>getOne("color").get()));
+//			}
+//		}
 
 		if (args.hasAny("b")) {
 			Consumer<List<String>> consumer1 = (list) -> {
@@ -127,16 +122,16 @@ public class CMDCreate implements CommandExecutor {
 					}
 
 					Portal.Server server = new Portal.Server(PortalType.PORTAL, destination, rotation.get(), price.get());
-					
-					if(permission.isPresent()) {
-						server.setPermission(permission.get());
-					}
-					
-					if(command.get().isPresent()) {
-						server.setCommand(command.get().get());
-					}
+//					
+//					if(permission.isPresent()) {
+//						server.setPermission(permission.get());
+//					}
+//					
+//					if(command.get().isPresent()) {
+//						server.setCommand(command.get().get());
+//					}
 
-					Properties properties = new Properties(particle.get(), color.get());
+					Properties properties = new Properties();
 					server.setProperties(properties);
 					server.setName(name);
 
@@ -193,15 +188,15 @@ public class CMDCreate implements CommandExecutor {
 				local.setCoordinate(coordinate.get());
 			}
 			
-			if(permission.isPresent()) {
-				local.setPermission(permission.get());
-			}
+//			if(permission.isPresent()) {
+//				local.setPermission(permission.get());
+//			}
+//			
+//			if(command.get().isPresent()) {
+//				local.setCommand(command.get().get());
+//			}
 			
-			if(command.get().isPresent()) {
-				local.setCommand(command.get().get());
-			}
-			
-			Properties properties = new Properties(particle.get(), color.get());
+			Properties properties = new Properties();
 			local.setProperties(properties);
 			local.setName(name);
 

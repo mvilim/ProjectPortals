@@ -30,8 +30,8 @@ public class Properties implements DataSerializable {
 	
 	private List<Location<World>> frame = new ArrayList<>();
 	private List<Location<World>> fill = new ArrayList<>();
-	private Optional<ParticleEffect> particle;
-	private Optional<BlockState> blockState;
+	private Optional<ParticleEffect> particle = Optional.empty();
+	private Optional<BlockState> blockState = Optional.empty();
 	private int intensity = 40;
 	
 	public Properties(Optional<ParticleEffect> particle, Optional<BlockState> blockState, int intensity) {
@@ -48,6 +48,10 @@ public class Properties implements DataSerializable {
 		this.intensity = intensity;
 	}
 
+	public Properties() {
+
+	}
+
 	public Optional<ParticleEffect> getParticle() {
 		return particle;
 	}
@@ -58,6 +62,10 @@ public class Properties implements DataSerializable {
 
 	public int getIntensity() {
 		return intensity;
+	}
+	
+	public void setIntensity(int intensity) {
+		this.intensity = intensity;
 	}
 	
 	public Optional<BlockState> getBlockState() {

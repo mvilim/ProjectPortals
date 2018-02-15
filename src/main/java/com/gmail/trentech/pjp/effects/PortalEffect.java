@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import org.spongepowered.api.Sponge;
@@ -45,10 +46,11 @@ public class PortalEffect {
 		if(optionalParticle.isPresent()) {
 			ParticleEffect particle = optionalParticle.get();
 			
-			List<Location<World>> list = properties.getFill();
+			
+			AtomicReference<List<Location<World>>> list = new AtomicReference<>();
 			
 			if(particle.getType().equals(ParticleTypes.DRIP_LAVA) || particle.getType().equals(ParticleTypes.DRIP_WATER)) {
-				list.clear();
+				List<Location<World>> locs = new ArrayList<>();
 				
 				first:
 				for(Location<World> location : properties.getFill()) {
@@ -57,12 +59,15 @@ public class PortalEffect {
 							continue first;
 						}
 					}
-					list.add(location);
+					locs.add(location);
 				}
+				list.set(locs);
+			} else {
+				list.set(properties.getFill());
 			}
 			
 			Sponge.getScheduler().createTaskBuilder().interval(properties.getIntensity(), TimeUnit.MILLISECONDS).name(portal.getName() + "particleupdate").execute(t -> {
-				for (Location<World> location : list) {
+				for (Location<World> location : list.get()) {
 					Optional<Chunk> optionalChunk = location.getExtent().getChunk(location.getChunkPosition());
 					
 					if(optionalChunk.isPresent() && optionalChunk.get().isLoaded()) {
