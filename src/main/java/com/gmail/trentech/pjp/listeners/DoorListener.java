@@ -19,10 +19,12 @@ import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import com.gmail.trentech.pjp.Main;
+import com.gmail.trentech.pjp.effects.PortalEffect;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.PortalService;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
@@ -94,8 +96,11 @@ public class DoorListener {
 				}
 
 				Portal portal = builders.get(player.getUniqueId());
+				
 				Sponge.getServiceManager().provide(PortalService.class).get().create(portal, location);
-
+				PortalEffect.create(location);
+				PortalEffect.create(location.getRelative(Direction.UP));
+				
 				player.sendMessage(Text.of(TextColors.DARK_GREEN, "New door portal created"));
 
 				builders.remove(player.getUniqueId());

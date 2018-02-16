@@ -13,21 +13,28 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleOptions;
+import org.spongepowered.api.effect.particle.ParticleEffect.Builder;
+import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Axis;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import com.flowpowered.math.vector.Vector3i;
+import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjp.Main;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.features.Properties;
+
+import ninja.leaping.configurate.ConfigurationNode;
 
 public class PortalEffect {
 
@@ -47,9 +54,10 @@ public class PortalEffect {
 			ParticleEffect particle = optionalParticle.get();
 			
 			
-			AtomicReference<List<Location<World>>> list = new AtomicReference<>();
-			
-			if(particle.getType().equals(ParticleTypes.DRIP_LAVA) || particle.getType().equals(ParticleTypes.DRIP_WATER)) {
+			AtomicReference<List<Location<World>>> list = new AtomicReference<>(properties.getFill());
+			AtomicReference<Double> y = new AtomicReference<>(random.nextDouble());
+
+			if(particle.getType().equals(ParticleTypes.DRIP_LAVA) || particle.getType().equals(ParticleTypes.DRIP_WATER) || particle.getType().equals(ParticleTypes.FIREWORKS_SPARK)) {
 				List<Location<World>> locs = new ArrayList<>();
 				
 				first:
@@ -61,9 +69,9 @@ public class PortalEffect {
 					}
 					locs.add(location);
 				}
+				
+				y.set(1.0);
 				list.set(locs);
-			} else {
-				list.set(properties.getFill());
 			}
 			
 			Sponge.getScheduler().createTaskBuilder().interval(properties.getIntensity(), TimeUnit.MILLISECONDS).name(portal.getName() + "particleupdate").execute(t -> {
@@ -71,8 +79,8 @@ public class PortalEffect {
 					Optional<Chunk> optionalChunk = location.getExtent().getChunk(location.getChunkPosition());
 					
 					if(optionalChunk.isPresent() && optionalChunk.get().isLoaded()) {
-						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), random.nextDouble(), random.nextDouble()));
-						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), random.nextDouble(), random.nextDouble()));
+						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), y.get(), random.nextDouble()));
+						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), y.get(), random.nextDouble()));
 					}
 				}
 			}).submit(Main.getPlugin());
@@ -117,6 +125,54 @@ public class PortalEffect {
 		}
 	}
 
+	public static void teleport(Location<World> location) {
+		ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "particles");
+		
+		if(node.getNode("enable").getBoolean()) {
+			Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, node.getNode("teleport", "type").getString());
+			
+			if(particleType.isPresent()) {
+				Builder builder = ParticleEffect.builder().type(particleType.get());
+				
+				String colorName = node.getNode("teleport", "color").getString();
+				
+				if(!colorName.equalsIgnoreCase("none")) {
+					Optional<Color> color = Colors.get(colorName);
+					
+					if(color.isPresent()) {
+						builder.option(ParticleOptions.COLOR, color.get());
+					}
+				}
+
+				PortalEffect.burst(builder.build(), location, true);
+			}	
+		}	
+	}
+		
+	public static void create(Location<World> location) {
+		ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "particles");
+		
+		if(node.getNode("enable").getBoolean()) {
+			Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, node.getNode("creation", "type").getString());
+			
+			if(particleType.isPresent()) {
+				Builder builder = ParticleEffect.builder().type(particleType.get());
+				
+				String colorName = node.getNode("creation", "color").getString();
+				
+				if(!colorName.equalsIgnoreCase("none")) {
+					Optional<Color> color = Colors.get(colorName);
+					
+					if(color.isPresent()) {
+						builder.option(ParticleOptions.COLOR, color.get());
+					}
+				}
+
+				PortalEffect.burst(builder.build(), location, false);
+			}	
+		}	
+	}
+	
 	public static void deactivate(Portal portal) {
 		for (Task task : Sponge.getScheduler().getScheduledTasks()) {
 			if (task.getName().equalsIgnoreCase(portal.getName() + "blockudate") || task.getName().equalsIgnoreCase(portal.getName() + "particleupdate")) {

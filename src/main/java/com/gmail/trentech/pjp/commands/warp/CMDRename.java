@@ -43,7 +43,8 @@ public class CMDRename implements CommandExecutor {
 		}
 
 		portalService.remove(portal);
-		portalService.create(portal, newName);
+		portal.setName(newName);
+		portalService.create(portal);
 
 		src.sendMessage(Text.of(TextColors.DARK_GREEN, "Warp renamed to ", newName));
 

@@ -52,11 +52,8 @@ public abstract class CMDObjBase implements CommandExecutor {
 			throw new CommandException(Text.builder().onClick(TextActions.executeCallback(help.execute())).append(help.getUsageText()).build(), false);
 		}
 		String destination = args.<String>getOne("destination").get();
-		
-		Optional<Coordinate> coordinate = Optional.empty();
-		AtomicReference<Rotation> direction = new AtomicReference<>(Rotation.EAST);
+
 		AtomicReference<Double> price = new AtomicReference<>(0.0);
-		boolean force = false;
 		Optional<String> permission = args.<String>getOne("permission");
 		AtomicReference<Optional<Command>> command = new AtomicReference<>(Optional.empty());
 		
@@ -100,7 +97,7 @@ public abstract class CMDObjBase implements CommandExecutor {
 						}
 					}
 
-					init(player, direction.get(), price.get(), false, Optional.of(destination), Optional.empty(), permission, command.get());
+					init(player, destination, price.get(), permission, command.get());
 
 					player.sendMessage(Text.of(TextColors.DARK_GREEN, "Place " + name + " to create " + name + " portal"));
 				};
@@ -113,36 +110,40 @@ public abstract class CMDObjBase implements CommandExecutor {
 			if (!world.isPresent()) {
 				throw new CommandException(Text.of(TextColors.RED, destination, " is not loaded or does not exist"), false);
 			}
-
+			
+			Coordinate coordinate;
+			Rotation rotation = Rotation.EAST;
+			boolean force = false;
+			
 			if (args.hasAny("x,y,z")) {
 				String[] coords = args.<String>getOne("x,y,z").get().split(",");
 
 				if (coords[0].equalsIgnoreCase("random")) {
-					coordinate = Optional.of(new Coordinate(world.get(), Preset.RANDOM));
+					coordinate = new Coordinate(world.get(), Preset.RANDOM);
 				} else if(coords[0].equalsIgnoreCase("bed")) {
-					coordinate = Optional.of(new Coordinate(world.get(), Preset.BED));
+					coordinate = new Coordinate(world.get(), Preset.BED);
 				} else if(coords[0].equalsIgnoreCase("last")) {
-					coordinate = Optional.of(new Coordinate(world.get(), Preset.LAST_LOCATION));
+					coordinate = new Coordinate(world.get(), Preset.LAST_LOCATION);
 				} else {
 					try {
-						coordinate = Optional.of(new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]))));
+						coordinate = new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2])));
 					} catch (Exception e) {
 						throw new CommandException(Text.of(TextColors.RED, coords.toString(), " is not valid"), true);
 					}
 				}
 			} else {
-				coordinate = Optional.of(new Coordinate(world.get(), Preset.NONE));
+				coordinate = new Coordinate(world.get(), Preset.NONE);
 			}
 
 			if (args.hasAny("direction")) {
-				direction.set(args.<Rotation>getOne("direction").get());
+				rotation = args.<Rotation>getOne("direction").get();
 			}
 
 			if (args.hasAny("f")) {
 				force = true;
 			}
 			
-			init(player, direction.get(), price.get(), force, Optional.empty(), coordinate, permission, command.get());
+			init(player, coordinate, rotation, price.get(), force, permission, command.get());
 
 			player.sendMessage(Text.of(TextColors.DARK_GREEN, "Place " + name + " to create " + name + " portal"));
 		}
@@ -150,5 +151,6 @@ public abstract class CMDObjBase implements CommandExecutor {
 		return CommandResult.success();
 	}
 
-	protected abstract void init(Player player, Rotation rotation, double price, boolean force, Optional<String> server, Optional<Coordinate> coordinate, Optional<String> permission, Optional<Command> command);
+	protected abstract void init(Player player, String server, double price, Optional<String> permission, Optional<Command> command);
+	protected abstract void init(Player player, Coordinate coordinate, Rotation rotation, double price, boolean force, Optional<String> permission, Optional<Command> command);
 }

@@ -122,8 +122,6 @@ public class PortalService {
 				Portal portal;
 				try {
 					portal = Portal.deserialize(result.getBytes("Data"));
-					
-					portal.setName(name);
 
 					cache.put(name, portal);
 
@@ -134,8 +132,7 @@ public class PortalService {
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
-					portal = new Portal.Local(null, null, 0, false);
-					portal.setName(name);
+					portal = new Portal.Local(name, null);
 					remove(portal);
 				}		
 			}
@@ -146,8 +143,7 @@ public class PortalService {
 		}
 	}
 
-	public void create(Portal portal, String name) {
-		portal.setName(name);
+	public void create(Portal portal) {
 		try {
 			SQLManager sqlManager = SQLManager.get(Main.getPlugin());
 			Connection connection = sqlManager.getDataSource().getConnection();
@@ -176,7 +172,7 @@ public class PortalService {
 	public void create(Portal portal, Location<World> location) {
 		portal.setName(location.getExtent().getName() + ":" + location.getBlockX() + "." + location.getBlockY() + "." + location.getBlockZ());
 
-		create(portal, portal.getName());
+		create(portal);
 	}
 
 	public void update(Portal portal) {
@@ -214,6 +210,10 @@ public class PortalService {
 	}
 
 	public void remove(Portal portal) {
+		if(cache.contains(portal.getName())) {
+			cache.remove(portal.getName());
+		}
+		
 		try {
 			SQLManager sqlManager = SQLManager.get(Main.getPlugin());
 			Connection connection = sqlManager.getDataSource().getConnection();
@@ -224,10 +224,6 @@ public class PortalService {
 			statement.executeUpdate();
 
 			connection.close();
-
-			if(cache.contains(portal.getName())) {
-				cache.remove(portal.getName());
-			}
 
 			Optional<Properties> optionalProperties = portal.getProperties();
 			
@@ -277,6 +273,7 @@ public class PortalService {
 					TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, server.getServer(), server.getPrice(), server.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), server));
 
 					if (!Sponge.getEventManager().post(teleportEvent)) {
+						PortalEffect.teleport(player.getLocation());
 						BungeeManager.connect(player, teleportEvent.getDestination());
 						player.setLocation(player.getWorld().getSpawnLocation());
 
@@ -342,9 +339,11 @@ public class PortalService {
 						spawnLocation = teleportEvent.getDestination();
 		
 						Vector3d rotation = local.getRotation().toVector3d();
-		
+
+						PortalEffect.teleport(player.getLocation());
 						player.setLocationAndRotation(spawnLocation, rotation);
-		
+						PortalEffect.teleport(spawnLocation);
+						
 						return true;
 					}
 				} else {

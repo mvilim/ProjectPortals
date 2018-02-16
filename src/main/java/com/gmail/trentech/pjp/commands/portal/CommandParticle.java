@@ -35,6 +35,7 @@ public class CommandParticle implements CommandCallable {
 	
 	private final Help help = Help.get("portal particle").get();
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
 		if(arguments.equalsIgnoreCase("particle")) {
@@ -93,20 +94,15 @@ public class CommandParticle implements CommandCallable {
 		}
 		
 		Builder builder = ParticleEffect.builder().type(particle);
-		System.out.println("BUILDER");
 		if(args.length > 3) {
-			ParticleOption option;
-			System.out.println("> 3");
 			try {
 				String particleOption = args[3];
 				
 				Optional<ParticleOption> optionalOption = Sponge.getRegistry().getType(ParticleOption.class, particleOption);
-				System.out.println("optionalOption");
+
 				if(!optionalOption.isPresent()) {
 					throw new CommandException(Text.of(TextColors.RED, "Not a valid ParticleOption"), false);
 				}
-				System.out.println("it's there");
-				option = optionalOption.get();
 			} catch(Exception e) {
 				throw new CommandException(getHelp().getUsageText());
 			}
@@ -119,8 +115,7 @@ public class CommandParticle implements CommandCallable {
 			} catch(Exception e) {
 				throw new CommandException(getHelp().getUsageText());
 			}
-			
-			System.out.println(previous);
+
 	    	if(previous.equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
 	    		String id[] = value.split(":");
 	    		
@@ -152,13 +147,11 @@ public class CommandParticle implements CommandCallable {
 	    		
 	    		builder.option(ParticleOptions.BLOCK_STATE, state);
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
-	    		System.out.println("color");
 	    		Optional<Color> color = Colors.get(value);
 	    		
 	    		if(!color.isPresent()) {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid Color"), false);
 	    		}
-	    		System.out.println("color exists");
 	    		builder.option(ParticleOptions.COLOR, color.get());
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
 
@@ -195,6 +188,7 @@ public class CommandParticle implements CommandCallable {
 		return CommandResult.success();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition) throws CommandException {
 		List<String> list = new ArrayList<>();

@@ -1,5 +1,7 @@
 package com.gmail.trentech.pjp.portal;
 
+import java.util.Optional;
+
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
@@ -10,7 +12,9 @@ import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import com.gmail.trentech.pjp.effects.PortalEffect;
 import com.gmail.trentech.pjp.events.ConstructPortalEvent;
+import com.gmail.trentech.pjp.portal.features.Properties;
 
 public class PortalBuilder {
 
@@ -57,11 +61,18 @@ public class PortalBuilder {
 	}
 
 	public boolean build(Player player) {
-		if (portal.getProperties().get().getFill().isEmpty()) {
+		Optional<Properties> optional = portal.getProperties();
+		
+		if(!optional.isPresent()) {
+			return false;
+		}
+		Properties properties = optional.get();
+		
+		if (properties.getFill().isEmpty()) {
 			return false;
 		}
 
-		if (!Sponge.getEventManager().post(new ConstructPortalEvent(portal.getProperties().get().getFrame(), portal.getProperties().get().getFill(), Cause.builder().append(portal).build(EventContext.builder().add(EventContextKeys.CREATOR, player).build())))) {
+		if (!Sponge.getEventManager().post(new ConstructPortalEvent(properties.getFrame(), properties.getFill(), Cause.builder().append(portal).build(EventContext.builder().add(EventContextKeys.CREATOR, player).build())))) {
 			BlockState block = BlockTypes.AIR.getDefaultState();
 
 			for (Location<World> location : portal.getProperties().get().getFill()) {
@@ -70,8 +81,11 @@ public class PortalBuilder {
 				}
 			}
 
-			Sponge.getServiceManager().provide(PortalService.class).get().create(portal, portal.getName());
+			Sponge.getServiceManager().provide(PortalService.class).get().create(portal);
 
+			for(Location<World> location : properties.getFill()) {
+				PortalEffect.create(location);
+			}
 			return true;
 		}
 		return false;

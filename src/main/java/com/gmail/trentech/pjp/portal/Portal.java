@@ -26,6 +26,7 @@ import com.gmail.trentech.pjp.rotation.Rotation;
 
 public abstract class Portal implements DataSerializable {
 
+	private static final DataQuery NAME = of("name");
 	private static final DataQuery FORCE = of("force");
 	private static final DataQuery PROPERTIES = of("properties");
 	private static final DataQuery PORTAL_TYPE = of("type");
@@ -38,16 +39,14 @@ public abstract class Portal implements DataSerializable {
 	
 	private final PortalType type;
 	private String name;
-	private Rotation rotation = Rotation.EAST;
 	private double price = 0;
 	private Optional<String> permission = Optional.empty();	
 	private Optional<Properties> properties = Optional.empty();
 	private Optional<Command> command = Optional.empty();
 	
-	protected Portal(PortalType type, Rotation rotation, double price) {
+	protected Portal(String name, PortalType type) {
+		this.name = name;
 		this.type = type;
-		this.rotation = rotation;
-		this.price = price;
 	}
 
 	public PortalType getType() {
@@ -60,14 +59,6 @@ public abstract class Portal implements DataSerializable {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public Rotation getRotation() {
-		return rotation;
-	}
-
-	public void setRotation(Rotation rotation) {
-		this.rotation = rotation;
 	}
 
 	public double getPrice() {
@@ -91,9 +82,13 @@ public abstract class Portal implements DataSerializable {
 	}
 
 	public void setPermission(String permission) {
+		if(permission.equalsIgnoreCase("none")) {
+			this.permission = Optional.empty();
+		}
+		
 		this.permission = Optional.of(permission);
 	}
-	
+
 	public Optional<Properties> getProperties() {
 		return properties;
 	}
@@ -106,8 +101,8 @@ public abstract class Portal implements DataSerializable {
 
 		private String server;
 
-		public Server(PortalType type, String server, Rotation rotation, double price) {
-			super(type, rotation, price);
+		public Server(String name, PortalType type, String server) {
+			super(name, type);
 			
 			this.server = server;
 		}
@@ -127,7 +122,7 @@ public abstract class Portal implements DataSerializable {
 
 		@Override
 		public DataContainer toContainer() {
-			DataContainer container = DataContainer.createNew().set(PORTAL_TYPE, getType().name()).set(SERVER, getServer()).set(ROTATION, getRotation().getName()).set(PRICE, getPrice());
+			DataContainer container = DataContainer.createNew().set(NAME, getName()).set(PORTAL_TYPE, getType().name()).set(SERVER, getServer()).set(PRICE, getPrice());
 
 			if (getPermission().isPresent()) {
 				container.set(PERMISSION, getPermission().get());
@@ -152,13 +147,15 @@ public abstract class Portal implements DataSerializable {
 
 			@Override
 			protected Optional<Server> buildContent(DataView container) throws InvalidDataException {
-				if (container.contains(PORTAL_TYPE, SERVER, ROTATION, PRICE)) {
+				if (container.contains(NAME, PORTAL_TYPE, SERVER, PRICE)) {
+					String name = container.getString(NAME).get();
 					PortalType type = PortalType.valueOf(container.getString(PORTAL_TYPE).get());
 					String server = container.getString(SERVER).get();
-					Rotation rotation = Rotation.get(container.getString(ROTATION).get()).get();
 					Double price = container.getDouble(PRICE).get();
 
-					Portal.Server portal = new Portal.Server(type, server, rotation, price);
+					Portal.Server portal = new Portal.Server(name, type, server);
+					
+					portal.setPrice(price);
 					
 					if(container.contains(PERMISSION)) {
 						portal.setPermission(container.getString(PERMISSION).get());
@@ -183,14 +180,22 @@ public abstract class Portal implements DataSerializable {
 	public static class Local extends Portal {
 
 		private Optional<Coordinate> coordinate;
-		private boolean force;
+		private Rotation rotation = Rotation.EAST;
+		private boolean force = false;
 		
-		public Local(PortalType type, Rotation rotation, double price, boolean force) {
-			super(type, rotation, price);
-
-			this.force = force;
+		public Local(String name, PortalType type) {
+			super(name, type);
 		}
 
+
+		public Rotation getRotation() {
+			return rotation;
+		}
+
+		public void setRotation(Rotation rotation) {
+			this.rotation = rotation;
+		}
+		
 		public Optional<Coordinate> getCoordinate() {
 			return coordinate;
 		}
@@ -203,7 +208,7 @@ public abstract class Portal implements DataSerializable {
 			return force;
 		}
 		
-		public void setSet(boolean force) {
+		public void setForce(boolean force) {
 			this.force = force;
 		}
 
@@ -214,7 +219,7 @@ public abstract class Portal implements DataSerializable {
 
 		@Override
 		public DataContainer toContainer() {
-			DataContainer container = DataContainer.createNew().set(PORTAL_TYPE, getType().name()).set(ROTATION, getRotation().getName()).set(PRICE, getPrice()).set(FORCE, force());
+			DataContainer container = DataContainer.createNew().set(NAME, getName()).set(PORTAL_TYPE, getType().name()).set(ROTATION, getRotation().getName()).set(PRICE, getPrice()).set(FORCE, force());
 
 			if (getPermission().isPresent()) {
 				container.set(PERMISSION, getPermission().get());
@@ -242,13 +247,18 @@ public abstract class Portal implements DataSerializable {
 
 			@Override
 			protected Optional<Local> buildContent(DataView container) throws InvalidDataException {
-				if (container.contains(PORTAL_TYPE, ROTATION, PRICE)) {
+				if (container.contains(NAME, PORTAL_TYPE)) {
+					String name = container.getString(NAME).get();
 					PortalType type = PortalType.valueOf(container.getString(PORTAL_TYPE).get());
 					Rotation rotation = Rotation.get(container.getString(ROTATION).get()).get();
 					Double price = container.getDouble(PRICE).get();
 					boolean force = container.getBoolean(FORCE).get();
 
-					Portal.Local portal = new Portal.Local(type, rotation, price, force);
+					Portal.Local portal = new Portal.Local(name, type);
+					
+					portal.setRotation(rotation);
+					portal.setPrice(price);
+					portal.setForce(force);
 
 					if(container.contains(PERMISSION)) {
 						portal.setPermission(container.getString(PERMISSION).get());

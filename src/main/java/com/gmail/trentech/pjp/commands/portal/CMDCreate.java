@@ -2,7 +2,6 @@ package com.gmail.trentech.pjp.commands.portal;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.spongepowered.api.Sponge;
@@ -11,16 +10,24 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleEffect.Builder;
+import org.spongepowered.api.effect.particle.ParticleOptions;
+import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.World;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.gmail.trentech.pjc.core.BungeeManager;
+import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjc.help.Help;
+import com.gmail.trentech.pjp.Main;
+import com.gmail.trentech.pjp.effects.Colors;
 import com.gmail.trentech.pjp.listeners.PortalListener;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
@@ -30,6 +37,8 @@ import com.gmail.trentech.pjp.portal.features.Coordinate;
 import com.gmail.trentech.pjp.portal.features.Coordinate.Preset;
 import com.gmail.trentech.pjp.portal.features.Properties;
 import com.gmail.trentech.pjp.rotation.Rotation;
+
+import ninja.leaping.configurate.ConfigurationNode;
 
 public class CMDCreate implements CommandExecutor {
 
@@ -61,44 +70,27 @@ public class CMDCreate implements CommandExecutor {
 		}
 		String destination = args.<String>getOne("destination").get();
 
-		Optional<Coordinate> coordinate = Optional.empty();
-		AtomicReference<Rotation> rotation = new AtomicReference<>(Rotation.EAST);
-		AtomicReference<Double> price = new AtomicReference<>(0.0);
-		boolean force = false;
-//		AtomicReference<Particle> particle = new AtomicReference<>(Particles.getDefaultEffect("portal"));
-//		AtomicReference<Optional<ParticleColor>> color = new AtomicReference<>(Particles.getDefaultColor("portal", particle.get().isColorable()));
-//		Optional<String> permission = args.<String>getOne("permission");
-//		AtomicReference<Optional<Command>> command = new AtomicReference<>(Optional.empty()); 
-//		
-//		if (args.hasAny("price")) {
-//			price.set(args.<Double>getOne("price").get());
-//		}
-//
-//		if (args.hasAny("command")) {
-//			String rawCommand = args.<String>getOne("command").get();
-//			String source = rawCommand.substring(0, 2);
-//			
-//			if(rawCommand.length() < 2) {
-//				throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
-//			}
-//			
-//			if(source.equalsIgnoreCase("P:")) {
-//				command.set(Optional.of(new Command(SourceType.PLAYER, rawCommand.substring(2))));
-//			} else if(source.equalsIgnoreCase("C:")) {
-//				command.set(Optional.of(new Command(SourceType.CONSOLE, rawCommand.substring(2))));
-//			} else {
-//				throw new CommandException(Text.of(TextColors.RED, "Did not specify command source. P: for player or C: for console. Example \"P:say hello world\""), false);
-//			}
-//		}
-//		
-//		if (args.hasAny("particle")) {
-//			particle.set(args.<Particles>getOne("particle").get().getParticle());
-//
-//			if (args.hasAny("color")) {
-//				color.set(Optional.of(args.<ParticleColor>getOne("color").get()));
-//			}
-//		}
+		ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "particles");
 
+		Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, node.getNode("teleport", "type").getString());
+		
+		Properties properties = new Properties();
+		
+		if(particleType.isPresent()) {
+			Builder builder = ParticleEffect.builder().type(particleType.get());
+			
+			String colorName = node.getNode("teleport", "color").getString();
+			
+			if(!colorName.equalsIgnoreCase("none")) {
+				Optional<Color> color = Colors.get(colorName);
+				
+				if(color.isPresent()) {
+					builder.option(ParticleOptions.COLOR, color.get());
+				}
+			}
+			properties.setParticle(Optional.of(builder.build()));
+		}	
+		
 		if (args.hasAny("b")) {
 			Consumer<List<String>> consumer1 = (list) -> {
 				if (!list.contains(destination)) {
@@ -118,22 +110,10 @@ public class CMDCreate implements CommandExecutor {
 						}
 					}
 
-					Portal.Server server = new Portal.Server(PortalType.PORTAL, destination, rotation.get(), price.get());
-//					
-//					if(permission.isPresent()) {
-//						server.setPermission(permission.get());
-//					}
-//					
-//					if(command.get().isPresent()) {
-//						server.setCommand(command.get().get());
-//					}
-
-					Properties properties = new Properties();
+					Portal.Server server = new Portal.Server(name, PortalType.PORTAL, destination);
 					server.setProperties(properties);
-					server.setName(name);
-
+					
 					PortalListener.builders.put(player.getUniqueId(), new PortalBuilder(server));
-					player.sendMessage(Text.builder().color(TextColors.DARK_GREEN).append(Text.of("Begin building your portal frame, followed by ")).onClick(TextActions.runCommand("/pjp:portal save")).append(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE, "/portal save")).build());
 				};
 				BungeeManager.getServer(consumer2, player);
 			};			
@@ -145,56 +125,42 @@ public class CMDCreate implements CommandExecutor {
 				throw new CommandException(Text.of(TextColors.RED, destination, " is not loaded or does not exist"), false);
 			}
 
+			Portal.Local local = new Portal.Local(name, PortalType.PORTAL);
+			
 			if (args.hasAny("x,y,z")) {
 				String[] coords = args.<String>getOne("x,y,z").get().split(",");
 
 				if (coords[0].equalsIgnoreCase("random")) {
-					coordinate = Optional.of(new Coordinate(world.get(), Preset.RANDOM));
+					local.setCoordinate(new Coordinate(world.get(), Preset.RANDOM));
 				} else if(coords[0].equalsIgnoreCase("bed")) {
-					coordinate = Optional.of(new Coordinate(world.get(), Preset.BED));
+					local.setCoordinate(new Coordinate(world.get(), Preset.BED));
 				} else if(coords[0].equalsIgnoreCase("last")) {
-					coordinate = Optional.of(new Coordinate(world.get(), Preset.LAST_LOCATION));
+					local.setCoordinate(new Coordinate(world.get(), Preset.LAST_LOCATION));
 				} else {
 					try {
-						coordinate = Optional.of(new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]))));
+						local.setCoordinate(new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]))));
 					} catch (Exception e) {
 						throw new CommandException(Text.of(TextColors.RED, coords.toString(), " is not valid"), true);
 					}
 				}
 			} else {
-				coordinate = Optional.of(new Coordinate(world.get(), Preset.NONE));
+				local.setCoordinate(new Coordinate(world.get(), Preset.NONE));
 			}
 
 			if (args.hasAny("direction")) {
-				rotation.set(args.<Rotation>getOne("direction").get());
+				local.setRotation(args.<Rotation>getOne("direction").get());
 			}
 
 			if (args.hasAny("f")) {
-				force = true;
+				local.setForce(true);
 			}
-			
-			Portal.Local local = new Portal.Local(PortalType.PORTAL, rotation.get(), price.get(), force);
-			
-			if(coordinate.isPresent()) {
-				local.setCoordinate(coordinate.get());
-			}
-			
-//			if(permission.isPresent()) {
-//				local.setPermission(permission.get());
-//			}
-//			
-//			if(command.get().isPresent()) {
-//				local.setCommand(command.get().get());
-//			}
-			
-			Properties properties = new Properties();
+
 			local.setProperties(properties);
-			local.setName(name);
 
 			PortalListener.builders.put(player.getUniqueId(), new PortalBuilder(local));
-			player.sendMessage(Text.builder().color(TextColors.DARK_GREEN).append(Text.of("Begin building your portal frame, followed by ")).onClick(TextActions.runCommand("/pjp:portal save")).append(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE, "/portal save")).build());
 		}
-
+		
+		player.sendMessage(Text.builder().color(TextColors.DARK_GREEN).append(Text.of("Begin building your portal frame, followed by ")).onClick(TextActions.runCommand("/pjp:portal save")).append(Text.of(TextColors.YELLOW, TextStyles.UNDERLINE, "/portal save")).build());
 		return CommandResult.success();
 	}
 

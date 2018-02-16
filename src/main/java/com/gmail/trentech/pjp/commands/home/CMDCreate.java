@@ -26,7 +26,6 @@ import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.Portal.Local;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
-import com.gmail.trentech.pjp.rotation.Rotation;
 
 public class CMDCreate implements CommandExecutor {
 
@@ -88,8 +87,9 @@ public class CMDCreate implements CommandExecutor {
 			force = true;
 		}
 		
-		Local portal = new Portal.Local(PortalType.HOME, Rotation.getClosest(player.getRotation().getFloorY()), 0, force);
+		Local portal = new Portal.Local(name, PortalType.HOME);
 		portal.setCoordinate(new Coordinate(location));
+		portal.setForce(force);
 		
 		list.put(name, portal);
 

@@ -44,11 +44,8 @@ public class Common {
 				.addArgument(Argument.of("[-f]", "Skips safe location check. Has no effect with '-c random' or '-c bed'"))
 				.addArgument(Argument.of("[-c <x,y,z>]", "Specifies the coordinates to set spawn to. Other valid arguments are \"random\",\"bed\" and \"last\". x and z must fall within the range -30,000,000 to 30,000,000 "
 						+ ", and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied"))
-				.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"))
-				.addArgument(Argument.of("[-p <price>]", "Specifies a price player will be charged for using portal"))
-				.addArgument(Argument.of("[-s <command>]", "Specifies a command to execute when using portal"))
-				.addArgument(Argument.of("[n <permission>]", "Allow you to assign a custom permission node to a portal. If no permission is provided everyone will have access."));
-		
+				.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"));
+
 		if (modules.getNode("buttons").getBoolean()) {
 			Help button = new Help("button", "button", "Use this command to create a button that will teleport you to other worlds")
 					.setPermission("pjp.cmd.button")
@@ -126,7 +123,7 @@ public class Common {
 					.setPermission("pjp.cmd.portal.create")
 					.setUsage(usageCreate)
 					.addExample("/portal create MyPortal MyWorld -c -100,65,254")
-					.addExample("/portal create MyPortal MyWorld -c random")
+					.addExample("/portal create MyPortal MyWorld -c C:random")
 					.addExample("/portal create MyPortal MyWorld -c -100,65,254 -d south")
 					.addExample("/portal create MyPortal MyWorld -d southeast")
 					.addExample("/portal create MyPortal MyWorld -p 50")
@@ -149,14 +146,15 @@ public class Common {
 					.setPermission("pjp.cmd.portal.list");
 			
 			Usage usageParticle = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
-					.addArgument(Argument.of("<particle>", "Specifies the Particle the portal will use."))
-					.addArgument(Argument.of("[color]", "Specifies the color the Particles will be. Color currently only available for REDSTONE"));
+					.addArgument(Argument.of("<particleType>", "Specifies the ParticleType"))
+					.addArgument(Argument.of("<intensity>", "Specifies the intensity of the particles spawn. The lower the value the more particles spawn. WARNING: too low could produce client lag"))
+					.addArgument(Argument.of("[<particleOption>", "Specifies a compatible particle option. color, block state, direction etc.."))
+					.addArgument(Argument.of("<value>]", "Specifies the particle option value"));
 			
 			Help portalParticle = new Help("portal particle", "particle", "Change a portals particle effect.")
 					.setPermission("pjp.cmd.portal.particle")
 					.setUsage(usageParticle)
-					.addExample("/portal particle MyPortal REDSTONE BLUE")
-					.addExample("/portal particle MyPortal CRIT");
+					.addExample("/portal particle MyPortal minecraft:redstone_dust 40 minecraft:color BLUE");
 			
 			Usage usagePrice = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
 					.addArgument(Argument.of("<price>", "Specifies a price player will be charged for using portal"));
@@ -165,7 +163,24 @@ public class Common {
 					.setPermission("pjp.cmd.portal.price")
 					.setUsage(usagePrice)
 					.addExample("/portal price MyPortal 0")
-					.addExample("/portal price MyPortal 50");
+					.addExample("/portal price MyPortal 50");	
+			
+			Usage usageCommand = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
+					.addArgument(Argument.of("<command>", "Specifies the command that will execute when using a portal, beginning with 'C:' or 'P:' to specify if command will run as Player or Console"));
+			
+			Help portalCommand = new Help("portal command", "command", "Run a command when using a portal.")
+					.setPermission("pjp.cmd.portal.command")
+					.setUsage(usageCommand)
+					.addExample("/portal command MyPortal P:kill all")
+					.addExample("/portal command MyPortal C:give Notch minecraft:apple");
+			
+			Usage usagePermission = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
+					.addArgument(Argument.of("<permission>", "Specifies the permission that is required to use portal"));
+			
+			Help portalPermission = new Help("portal permission", "permission", "Sets a permission node that is required to use portal.")
+					.setPermission("pjp.cmd.portal.permission")
+					.setUsage(usagePermission)
+					.addExample("/portal permission MyPortal perm.node");
 			
 			Usage usageRemove = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"));
 					
@@ -188,6 +203,8 @@ public class Common {
 			Help portal = new Help("portal", "portal", " Top level portal command")
 					.setPermission("pjp.cmd.portal")
 					.addChild(portalSave)
+					.addChild(portalPermission)
+					.addChild(portalCommand)
 					.addChild(portalRename)
 					.addChild(portalRemove)
 					.addChild(portalPrice)
@@ -315,19 +332,12 @@ public class Common {
 		if (config.getNode("options", "particles").isVirtual()) {
 			config.getNode("options", "particles").setComment("Particle effect settings");
 			config.getNode("options", "particles", "enable").setValue(true).setComment("Enable particle effects");
-			config.getNode("options", "particles", "portal", "type").setValue("PORTAL_SHIMMER").setComment("Default particle type for portals");
-			config.getNode("options", "particles", "portal", "color").setValue("NONE").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
-			config.getNode("options", "particles", "teleport", "type").setValue("REDSTONE_DUST").setComment("Default particle type when teleporting");
-			config.getNode("options", "particles", "teleport", "color").setValue("RAINBOW").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
-			config.getNode("options", "particles", "creation", "type").setValue("WITCH_SPELL").setComment("Default particle type when creating any kind of portal");
-			config.getNode("options", "particles", "creation", "color").setValue("NONE").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
-		}
-		//FIX
-		if(config.getNode("options", "particles", "creation", "type").getString().equals("SPELL_WITCH")) {
-			config.getNode("options", "particles", "creation", "type").setValue("WITCH_SPELL");
-		}
-		if(config.getNode("options", "particles", "teleport", "type").getString().equals("REDSTONE")) {
-			config.getNode("options", "particles", "teleport", "type").setValue("REDSTONE_DUST");
+			config.getNode("options", "particles", "portal", "type").setValue("minecraft:witch_spell").setComment("Default particle type for portals");
+			config.getNode("options", "particles", "portal", "color").setValue("none").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
+			config.getNode("options", "particles", "teleport", "type").setValue("minecraft:redstone_dust").setComment("Default particle type when teleporting");
+			config.getNode("options", "particles", "teleport", "color").setValue("rainbow").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
+			config.getNode("options", "particles", "creation", "type").setValue("minecraft:witch_spell").setComment("Default particle type when creating any kind of portal");
+			config.getNode("options", "particles", "creation", "color").setValue("none").setComment("Default Color of Particle if supported, otherwise set \"NONE\"");
 		}
 		if (config.getNode("options", "random_spawn_radius").isVirtual()) {
 			config.getNode("options", "random_spawn_radius").setValue(5000).setComment("World radius for random spawn portals.");

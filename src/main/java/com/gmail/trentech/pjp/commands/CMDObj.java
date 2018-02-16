@@ -26,36 +26,39 @@ public class CMDObj {
 		}
 
 		@Override
-		protected void init(Player player, Rotation rotation, double price, boolean force, Optional<String> server, Optional<Coordinate> coordinate, Optional<String> permission, Optional<Command> command) {
-			if (server.isPresent()) {
-				Server portal = new Portal.Server(PortalType.BUTTON, server.get(), rotation, price);
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				ButtonListener.builders.put(player.getUniqueId(), portal);
-			} else {
-				Local portal = new Portal.Local(PortalType.BUTTON, rotation, price, force);
-				
-				if(coordinate.isPresent()) {
-					portal.setCoordinate(coordinate.get());
-				}
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				ButtonListener.builders.put(player.getUniqueId(), portal);
+		protected void init(Player player, String server, double price, Optional<String> permission, Optional<Command> command) {
+			Server portal = new Portal.Server(name, PortalType.BUTTON, server);
+			
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
 			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			ButtonListener.builders.put(player.getUniqueId(), portal);
+		}
+
+		@Override
+		protected void init(Player player, Coordinate coordinate, Rotation rotation, double price, boolean force, Optional<String> permission, Optional<Command> command) {
+			Local portal = new Portal.Local(name, PortalType.BUTTON);
+
+			portal.setCoordinate(coordinate);
+			portal.setRotation(rotation);
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
+			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			ButtonListener.builders.put(player.getUniqueId(), portal);
 		}
 	}
 
@@ -66,36 +69,39 @@ public class CMDObj {
 		}
 
 		@Override
-		protected void init(Player player, Rotation rotation, double price, boolean force, Optional<String> server, Optional<Coordinate> coordinate, Optional<String> permission, Optional<Command> command) {
-			if (server.isPresent()) {
-				Server portal = new Portal.Server(PortalType.DOOR, server.get(), rotation, price);
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				DoorListener.builders.put(player.getUniqueId(), portal);
-			} else {
-				Local portal = new Portal.Local(PortalType.DOOR, rotation, price, force);
-				
-				if(coordinate.isPresent()) {
-					portal.setCoordinate(coordinate.get());
-				}
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				DoorListener.builders.put(player.getUniqueId(), portal);
+		protected void init(Player player, String server, double price, Optional<String> permission, Optional<Command> command) {
+			Server portal = new Portal.Server(name, PortalType.DOOR, server);
+			
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
 			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			DoorListener.builders.put(player.getUniqueId(), portal);
+		}
+
+		@Override
+		protected void init(Player player, Coordinate coordinate, Rotation rotation, double price, boolean force, Optional<String> permission, Optional<Command> command) {
+			Local portal = new Portal.Local(name, PortalType.DOOR);
+
+			portal.setCoordinate(coordinate);
+			portal.setRotation(rotation);
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
+			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			DoorListener.builders.put(player.getUniqueId(), portal);
 		}
 	}
 
@@ -106,36 +112,39 @@ public class CMDObj {
 		}
 
 		@Override
-		protected void init(Player player, Rotation rotation, double price, boolean force, Optional<String> server, Optional<Coordinate> coordinate, Optional<String> permission, Optional<Command> command) {
-			if (server.isPresent()) {
-				Server portal = new Portal.Server(PortalType.LEVER, server.get(), rotation, price);
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				LeverListener.builders.put(player.getUniqueId(), portal);
-			} else {
-				Local portal = new Portal.Local(PortalType.LEVER, rotation, price, force);
-				
-				if(coordinate.isPresent()) {
-					portal.setCoordinate(coordinate.get());
-				}
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				LeverListener.builders.put(player.getUniqueId(), portal);
+		protected void init(Player player, String server, double price, Optional<String> permission, Optional<Command> command) {
+			Server portal = new Portal.Server(name, PortalType.LEVER, server);
+			
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
 			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			LeverListener.builders.put(player.getUniqueId(), portal);
+		}
+
+		@Override
+		protected void init(Player player, Coordinate coordinate, Rotation rotation, double price, boolean force, Optional<String> permission, Optional<Command> command) {
+			Local portal = new Portal.Local(name, PortalType.LEVER);
+
+			portal.setCoordinate(coordinate);
+			portal.setRotation(rotation);
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
+			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			LeverListener.builders.put(player.getUniqueId(), portal);
 		}
 	}
 
@@ -146,36 +155,39 @@ public class CMDObj {
 		}
 
 		@Override
-		protected void init(Player player, Rotation rotation, double price, boolean force, Optional<String> server, Optional<Coordinate> coordinate, Optional<String> permission, Optional<Command> command) {
-			if (server.isPresent()) {
-				Server portal = new Portal.Server(PortalType.PLATE, server.get(), rotation, price);
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				PlateListener.builders.put(player.getUniqueId(), portal);
-			} else {
-				Local portal = new Portal.Local(PortalType.PLATE, rotation, price, force);
-				
-				if(coordinate.isPresent()) {
-					portal.setCoordinate(coordinate.get());
-				}
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				PlateListener.builders.put(player.getUniqueId(), portal);
+		protected void init(Player player, String server, double price, Optional<String> permission, Optional<Command> command) {
+			Server portal = new Portal.Server(name, PortalType.PLATE, server);
+			
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
 			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			PlateListener.builders.put(player.getUniqueId(), portal);
+		}
+
+		@Override
+		protected void init(Player player, Coordinate coordinate, Rotation rotation, double price, boolean force, Optional<String> permission, Optional<Command> command) {
+			Local portal = new Portal.Local(name, PortalType.PLATE);
+
+			portal.setCoordinate(coordinate);
+			portal.setRotation(rotation);
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
+			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			PlateListener.builders.put(player.getUniqueId(), portal);
 		}
 	}
 
@@ -186,36 +198,39 @@ public class CMDObj {
 		}
 
 		@Override
-		protected void init(Player player, Rotation rotation, double price, boolean force, Optional<String> server, Optional<Coordinate> coordinate, Optional<String> permission, Optional<Command> command) {
-			if (server.isPresent()) {
-				Server portal = new Portal.Server(PortalType.SIGN, server.get(), rotation, price);
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				SignListener.builders.put(player.getUniqueId(), portal);
-			} else {
-				Local portal = new Portal.Local(PortalType.SIGN, rotation, price, force);
-				
-				if(coordinate.isPresent()) {
-					portal.setCoordinate(coordinate.get());
-				}
-				
-				if(permission.isPresent()) {
-					portal.setPermission(permission.get());
-				}
-				
-				if(command.isPresent()) {
-					portal.setCommand(command.get());
-				}
-				
-				SignListener.builders.put(player.getUniqueId(), portal);
+		protected void init(Player player, String server, double price, Optional<String> permission, Optional<Command> command) {
+			Server portal = new Portal.Server(name, PortalType.SIGN, server);
+			
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
 			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			SignListener.builders.put(player.getUniqueId(), portal);
+		}
+
+		@Override
+		protected void init(Player player, Coordinate coordinate, Rotation rotation, double price, boolean force, Optional<String> permission, Optional<Command> command) {
+			Local portal = new Portal.Local(name, PortalType.SIGN);
+
+			portal.setCoordinate(coordinate);
+			portal.setRotation(rotation);
+			portal.setPrice(price);
+			
+			if(permission.isPresent()) {
+				portal.setPermission(permission.get());
+			}
+			
+			if(command.isPresent()) {
+				portal.setCommand(command.get());
+			}
+			
+			SignListener.builders.put(player.getUniqueId(), portal);
 		}
 	}
 }

@@ -144,9 +144,12 @@ public class Commands {
 		    .description(Text.of("Change a existing portals destination"))
 		    .permission("pjp.cmd.portal.destination")
 		    .arguments(
-		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)), 
+		    		GenericArguments.optional(GenericArguments.string(Text.of("name"))), 
 		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.optional(GenericArguments.string(Text.of("x,y,z"))))
+		    		GenericArguments.flags().flag("b").flag("f")
+		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
+		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
+		    		.buildWith(GenericArguments.none()))
 		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDDestination())
 		    .build();
 	

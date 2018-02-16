@@ -21,9 +21,9 @@ import com.gmail.trentech.pjc.core.BungeeManager;
 import com.gmail.trentech.pjc.help.Help;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.PortalService;
-import com.gmail.trentech.pjp.portal.Portal.Server;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
 import com.gmail.trentech.pjp.portal.features.Coordinate.Preset;
+import com.gmail.trentech.pjp.rotation.Rotation;
 
 public class CMDDestination implements CommandExecutor {
 
@@ -51,9 +51,11 @@ public class CMDDestination implements CommandExecutor {
 		}
 		String destination = args.<String>getOne("destination").get();
 
-		if (portal instanceof Portal.Server) {
-			Portal.Server server = (Server) portal;
-
+		if(portal instanceof Portal.Server) {
+			if (!args.hasAny("b")) {
+				throw new CommandException(Text.of(TextColors.RED, "Bungee portals cannot be changed to local server portals at this time."), false);
+			}
+			
 			Consumer<List<String>> consumer1 = (list) -> {
 				if (!list.contains(destination)) {
 					try {
@@ -71,51 +73,62 @@ public class CMDDestination implements CommandExecutor {
 							e.printStackTrace();
 						}
 					}
+
+					Portal.Server server = (Portal.Server) portal;
+
+					server.setServer(destination);
+					
+					Sponge.getServiceManager().provideUnchecked(PortalService.class).update(server);
 				};
 				BungeeManager.getServer(consumer2, player);
 			};			
 			BungeeManager.getServers(consumer1, player);
-
-			server.setServer(destination);
 		} else {
-			Portal.Local local = (Portal.Local) portal;
-
+			if (args.hasAny("b")) {
+				throw new CommandException(Text.of(TextColors.RED, "Local server portals cannot be changed to bungee portals at this time."), false);
+			}
+			
 			Optional<World> world = Sponge.getServer().getWorld(destination);
 
 			if (!world.isPresent()) {
 				throw new CommandException(Text.of(TextColors.RED, destination, " is not loaded or does not exist"), false);
 			}
 
-			Coordinate coordinate;
+			Portal.Local local = (Portal.Local) portal;
 			
 			if (args.hasAny("x,y,z")) {
 				String[] coords = args.<String>getOne("x,y,z").get().split(",");
 
 				if (coords[0].equalsIgnoreCase("random")) {
-					coordinate = new Coordinate(world.get(), Preset.RANDOM);
+					local.setCoordinate(new Coordinate(world.get(), Preset.RANDOM));
 				} else if(coords[0].equalsIgnoreCase("bed")) {
-					coordinate = new Coordinate(world.get(), Preset.BED);
+					local.setCoordinate(new Coordinate(world.get(), Preset.BED));
 				} else if(coords[0].equalsIgnoreCase("last")) {
-					coordinate = new Coordinate(world.get(), Preset.LAST_LOCATION);
+					local.setCoordinate(new Coordinate(world.get(), Preset.LAST_LOCATION));
 				} else {
 					try {
-						coordinate = new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2])));
+						local.setCoordinate(new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]))));
 					} catch (Exception e) {
 						throw new CommandException(Text.of(TextColors.RED, coords.toString(), " is not valid"), true);
 					}
 				}
 			} else {
-				coordinate = new Coordinate(world.get(), Preset.NONE);
+				local.setCoordinate(new Coordinate(world.get(), Preset.NONE));
 			}
-			
-			local.setCoordinate(coordinate);
+
+			if (args.hasAny("direction")) {
+				local.setRotation(args.<Rotation>getOne("direction").get());
+			}
+
+			if (args.hasAny("f")) {
+				local.setForce(true);
+			}
+
+			Sponge.getServiceManager().provideUnchecked(PortalService.class).update(local);
 		}
-
-		Sponge.getServiceManager().provide(PortalService.class).get().update(portal);
-
-		src.sendMessage(Text.of(TextColors.DARK_GREEN, "Portal destination updated"));
+		
+		player.sendMessage(Text.of(TextColors.DARK_GREEN, "changed portal destination"));
 
 		return CommandResult.success();
 	}
-
 }

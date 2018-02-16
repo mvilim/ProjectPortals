@@ -214,7 +214,7 @@ public class PortalListener {
 			}
 			Location<World> spawnLocation = optionalSpawnLocation.get();
 
-			Vector3d rotation = portal.getRotation().toVector3d();
+			Vector3d rotation = local.getRotation().toVector3d();
 
 			event.setToTransform(new Transform<World>(spawnLocation.getExtent(), spawnLocation.getPosition(), rotation));
 		} finally {
@@ -263,7 +263,7 @@ public class PortalListener {
 			}
 			Location<World> spawnLocation = optionalSpawnLocation.get();
 
-			Vector3d rotation = portal.getRotation().toVector3d();
+			Vector3d rotation = local.getRotation().toVector3d();
 
 			event.setToTransform(new Transform<World>(spawnLocation.getExtent(), spawnLocation.getPosition(), rotation));
 		} finally {
