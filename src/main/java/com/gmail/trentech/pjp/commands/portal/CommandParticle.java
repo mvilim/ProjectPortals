@@ -13,14 +13,19 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.type.NotePitch;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleEffect.Builder;
 import org.spongepowered.api.effect.particle.ParticleOption;
 import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleType;
+import org.spongepowered.api.effect.potion.PotionEffectType;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.Color;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -154,21 +159,70 @@ public class CommandParticle implements CommandCallable {
 	    		}
 	    		builder.option(ParticleOptions.COLOR, color.get());
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
-
+	    		builder.option(ParticleOptions.DIRECTION, Direction.valueOf(value));
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
 
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
-
+	    		String id[] = value.split(":");
+	    		
+	    		if(id.length < 2) {
+	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid ItemType"), false);
+	    		}
+				Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, id[0] + ":" + id[1]);
+				
+				if(!optionalItemType.isPresent()) {
+					throw new CommandException(Text.of(TextColors.RED, "Not a valid ItemType"), false);
+				}
+				
+				ItemStack itemStack = ItemStack.of(optionalItemType.get(), 1);
+				
+	    		if(id.length > 2) {
+					try {
+						Integer.parseInt(id[2]);
+					} catch (Exception e) {
+						throw new CommandException(Text.of(TextColors.RED, "Not a valid Data Value"), false);
+					}
+					
+					DataContainer container = itemStack.toContainer();
+					DataQuery query = DataQuery.of('/', "UnsafeDamage");
+					
+					container.set(query, Integer.parseInt(id[2]));
+					
+					itemStack = Sponge.getDataManager().deserialize(ItemStack.class, container).get();
+	    		}	    		
+	    		builder.option(ParticleOptions.ITEM_STACK_SNAPSHOT, itemStack.createSnapshot());
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
-
+	    		Optional<NotePitch> notepitch = Sponge.getRegistry().getType(NotePitch.class, value);
+	    		
+	    		if(!notepitch.isPresent()) {
+	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid NotePitch"), false);
+	    		}
+	    		builder.option(ParticleOptions.NOTE, notepitch.get());
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.OFFSET.getId())) {
-
+	    		
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
-
+	    		Optional<PotionEffectType> potionEffect = Sponge.getRegistry().getType(PotionEffectType.class, value);
+	    		
+	    		if(!potionEffect.isPresent()) {
+	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid PotionEffectType"), false);
+	    		}
+	    		builder.option(ParticleOptions.POTION_EFFECT_TYPE, potionEffect.get());
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.QUANTITY.getId())) {
-
+	    		int quantity;
+	    		try {
+	    			quantity = Integer.parseInt(value);
+	    		} catch (Exception e) {
+	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid Integer"), false);
+	    		}
+	    		builder.option(ParticleOptions.QUANTITY, quantity);
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.SCALE.getId())) {
-
+	    		double scale;
+	    		try {
+	    			scale = Double.parseDouble(value);
+	    		} catch (Exception e) {
+	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid Double"), false);
+	    		}
+	    		builder.option(ParticleOptions.SCALE, scale);
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getId())) {
 
 	    	} else if(previous.equalsIgnoreCase(ParticleOptions.VELOCITY.getId())) {
@@ -217,6 +271,9 @@ public class CommandParticle implements CommandCallable {
 		if(args.length == 2) {
 			for(ParticleType particleType : Sponge.getRegistry().getAllOf(ParticleType.class)) {
 				if(particleType.getId().toLowerCase().equalsIgnoreCase(args[1].toLowerCase())) {
+					for(ParticleOption particleOption : Sponge.getRegistry().getAllOf(ParticleOption.class)) {
+						list.add(particleOption.getId());
+					}
 					return list;
 				}
 				
@@ -229,6 +286,36 @@ public class CommandParticle implements CommandCallable {
 		if(args.length == 4) {
 			for(ParticleOption particleOption : Sponge.getRegistry().getAllOf(ParticleOption.class)) {
 				if(particleOption.getId().toLowerCase().equalsIgnoreCase(args[3].toLowerCase())) {
+			    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
+			    		for(BlockType blockType : Sponge.getRegistry().getAllOf(BlockType.class)) {
+							list.add(blockType.getId());
+			    		}
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
+			    		for(Colors color : Colors.values()) {
+							list.add(color.getName());
+			    		}
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
+			    		for(Direction direction : Direction.values()) {
+							list.add(direction.name());
+			    		}
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
+			    		// IMPLEMENT
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
+			    		for(ItemType itemType : Sponge.getRegistry().getAllOf(ItemType.class)) {
+							list.add(itemType.getId());
+			    		}
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
+			    		for(NotePitch notePitch : Sponge.getRegistry().getAllOf(NotePitch.class)) {
+							list.add(notePitch.getId());
+			    		}
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
+			    		for(PotionEffectType potionEffect : Sponge.getRegistry().getAllOf(PotionEffectType.class)) {
+							list.add(potionEffect.getId());
+			    		}
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getId())) {
+			    		list.add("true");
+			    		list.add("false");
+			    	}
 					return list;
 				}
 				
@@ -260,25 +347,47 @@ public class CommandParticle implements CommandCallable {
 					}
 	    		}
 	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
-
+	    		for(Direction direction : Direction.values()) {
+					if(direction.name().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+						return list;
+					}
+					
+					if(direction.name().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(direction.name());
+					}
+	    		}
 	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
-
+	    		// IMPLEMENT
 	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
-
+	    		for(ItemType itemType : Sponge.getRegistry().getAllOf(ItemType.class)) {
+					if(itemType.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+						return list;
+					}
+					
+					if(itemType.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(itemType.getId());
+					}
+	    		}
 	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
-
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.OFFSET.getId())) {
-
+	    		for(NotePitch notePitch : Sponge.getRegistry().getAllOf(NotePitch.class)) {
+					if(notePitch.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+						return list;
+					}
+					
+					if(notePitch.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(notePitch.getId());
+					}
+	    		}
 	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
-
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.QUANTITY.getId())) {
-
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.SCALE.getId())) {
-
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getId())) {
-
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.VELOCITY.getId())) {
-
+	    		for(PotionEffectType potionEffect : Sponge.getRegistry().getAllOf(PotionEffectType.class)) {
+					if(potionEffect.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+						return list;
+					}
+					
+					if(potionEffect.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(potionEffect.getId());
+					}
+	    		}
 	    	}
 		}
 		return list;
