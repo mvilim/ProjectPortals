@@ -113,12 +113,8 @@ public class Common {
 					.addArgument(Argument.of("[-f]", "Skips safe location check. Has no effect with '-c random' or '-c bed'"))
 					.addArgument(Argument.of("[-c <x,y,z>]", "Specifies the coordinates to set spawn to. x and z must fall within the range -30,000,000 to 30,000,000 (exclusive, without the "
 							+ "commas), and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied"))
-					.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"))
-					.addArgument(Argument.of("[-e <particle> [color]]", "Specifies a Particle and ParticleColor the portal will use. Colors are only compatible with REDSTONE and MOB_SPELL"))
-					.addArgument(Argument.of("[-p <price>]", "Specifies a price player will be charged for using portal"))
-					.addArgument(Argument.of("[-s <command>]", "Specifies a command to execute when using portal"))
-					.addArgument(Argument.of("[n <permission>]", "Allow you to assign a custom permission node to a portal. If no permission is provided everyone will have access."));
-			
+					.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"));
+
 			Help portalCreate = new Help("portal create", "create", "Use this command to create a portal that will teleport you to other worlds")
 					.setPermission("pjp.cmd.portal.create")
 					.setUsage(usageCreate)
@@ -126,11 +122,9 @@ public class Common {
 					.addExample("/portal create MyPortal MyWorld -c C:random")
 					.addExample("/portal create MyPortal MyWorld -c -100,65,254 -d south")
 					.addExample("/portal create MyPortal MyWorld -d southeast")
-					.addExample("/portal create MyPortal MyWorld -p 50")
-					.addExample("/portal create MyPortal MyWorld -e REDSTONE BLUE")
 					.addExample("/portal create MyPortal MyWorld");
 			
-			Usage usageDestination = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
+			Usage usageDestination = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<destination>", "Specifies a world or server if is bungee portal"))
 					.addArgument(Argument.of("[x,y,z]", "Specifies the coordinates to set spawn to. x and z must fall within the range -30,000,000 to 30,000,000 (exclusive, without the "
 							+ "commas), and y must be within the range -4096 to 4096 inclusive. This is ignored if is bungee portal"));
@@ -145,7 +139,7 @@ public class Common {
 			Help portalList = new Help("portal list", "list", "List all portals")
 					.setPermission("pjp.cmd.portal.list");
 			
-			Usage usageParticle = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
+			Usage usageParticle = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<particleType>", "Specifies the ParticleType"))
 					.addArgument(Argument.of("<intensity>", "Specifies the intensity of the particles spawn. The lower the value the more particles spawn. WARNING: too low could produce client lag"))
 					.addArgument(Argument.of("[<particleOption>", "Specifies a compatible particle option. color, block state, direction etc.."))
@@ -156,7 +150,15 @@ public class Common {
 					.setUsage(usageParticle)
 					.addExample("/portal particle MyPortal minecraft:redstone_dust 40 minecraft:color BLUE");
 			
-			Usage usagePrice = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
+			Usage usageBlock = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
+					.addArgument(Argument.of("<blockType>", "Specifies the BlockType"));
+			
+			Help portalBlock = new Help("portal block", "block", "Change a portals center block type. Mostly used for creating the portal effect but other mods could make this usefull")
+					.setPermission("pjp.cmd.portal.block")
+					.setUsage(usageBlock)
+					.addExample("/portal block MyPortal minecraft:portal");
+			
+			Usage usagePrice = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<price>", "Specifies a price player will be charged for using portal"));
 			
 			Help portalPrice = new Help("portal price", "price", "Charge players for using portals. 0 to disable")
@@ -165,7 +167,7 @@ public class Common {
 					.addExample("/portal price MyPortal 0")
 					.addExample("/portal price MyPortal 50");	
 			
-			Usage usageCommand = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
+			Usage usageCommand = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<command>", "Specifies the command that will execute when using a portal, beginning with 'C:' or 'P:' to specify if command will run as Player or Console"));
 			
 			Help portalCommand = new Help("portal command", "command", "Run a command when using a portal.")
@@ -174,7 +176,7 @@ public class Common {
 					.addExample("/portal command MyPortal P:kill all")
 					.addExample("/portal command MyPortal C:give Notch minecraft:apple");
 			
-			Usage usagePermission = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"))
+			Usage usagePermission = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<permission>", "Specifies the permission that is required to use portal"));
 			
 			Help portalPermission = new Help("portal permission", "permission", "Sets a permission node that is required to use portal.")
@@ -182,14 +184,14 @@ public class Common {
 					.setUsage(usagePermission)
 					.addExample("/portal permission MyPortal perm.node");
 			
-			Usage usageRemove = new Usage(Argument.of("<name>", "Specifies the name of the targetted portal"));
+			Usage usageRemove = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"));
 					
 			Help portalRemove = new Help("portal remove", "remove", "Remove an existing portal")
 					.setPermission("pjp.cmd.portal.remove")
 					.setUsage(usageRemove)
 					.addExample("/portal remove MyPortal");
 			
-			Usage usageRename = new Usage(Argument.of("<oldName>", "Specifies the name of the targetted portal"))
+			Usage usageRename = new Usage(Argument.of("<oldName>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<newName>", "Specifies the new name of the portal"));
 			
 			Help portalRename = new Help("portal rename", "rename", "Rename portal")
@@ -206,6 +208,7 @@ public class Common {
 					.addChild(portalPermission)
 					.addChild(portalCommand)
 					.addChild(portalRename)
+					.addChild(portalBlock)
 					.addChild(portalRemove)
 					.addChild(portalPrice)
 					.addChild(portalParticle)
@@ -228,14 +231,14 @@ public class Common {
 			Help homeList = new Help("home list", "list", "List all homes")
 					.setPermission("pjp.cmd.home.list");
 			
-			Usage usageRemove = new Usage(Argument.of("<name>", "Specifies the name of the targetted home"));
+			Usage usageRemove = new Usage(Argument.of("<name>", "Specifies the name of the targeted home"));
 			
 			Help homeRemove = new Help("home remove", "remove", "Remove an existing home")
 					.setPermission("pjp.cmd.home.remove")
 					.setUsage(usageRemove)
 					.addExample("/home remove OldHome");
 			
-			Usage usageRename = new Usage(Argument.of("<oldName>", "Specifies the name of the targetted home"))
+			Usage usageRename = new Usage(Argument.of("<oldName>", "Specifies the name of the targeted home"))
 					.addArgument(Argument.of("<newName>", "Specifies the new name of the home"));
 			
 			Help homeRename = new Help("home rename", "rename", "Rename home")
@@ -277,7 +280,7 @@ public class Common {
 			Help warpList = new Help("warp list", "list", "List all warp points")
 					.setPermission("pjp.cmd.warp.list");
 			
-			Usage usagePrice = new Usage(Argument.of("<name>", "Specifies the name of the targetted warp point"))
+			Usage usagePrice = new Usage(Argument.of("<name>", "Specifies the name of the targeted warp point"))
 					.addArgument(Argument.of("<price>", "Specifies a price player will be charged for using this warp"));
 			
 			Help warpPrice = new Help("warp price", "price", "Charge players for using warps. 0 to disable")
@@ -286,14 +289,14 @@ public class Common {
 					.addExample("/warp price Lobby 0")
 					.addExample("/warp price Lobby 50");
 			
-			Usage usageRemove = new Usage(Argument.of("<name>", "Specifies the name of the targetted warp point"));
+			Usage usageRemove = new Usage(Argument.of("<name>", "Specifies the name of the targeted warp point"));
 					
 			Help warpRemove = new Help("warp remove", "remove", "Remove an existing  warp point")
 					.setPermission("pjp.cmd.warp.remove")
 					.setUsage(usageRemove)
 					.addExample("/warp remove OldSpawn");
 			
-			Usage usageRename = new Usage(Argument.of("<oldName>", "Specifies the name of the targetted warp point"))
+			Usage usageRename = new Usage(Argument.of("<oldName>", "Specifies the name of the targeted warp point"))
 					.addArgument(Argument.of("<newName>", "Specifies the new name of the warp point"));
 			
 			Help warpRename = new Help("warp rename", "rename", "Rename warp")
