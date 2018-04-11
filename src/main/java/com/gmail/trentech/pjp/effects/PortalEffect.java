@@ -52,8 +52,7 @@ public class PortalEffect {
 		
 		if(optionalParticle.isPresent()) {
 			ParticleEffect particle = optionalParticle.get();
-			
-			
+					
 			AtomicReference<List<Location<World>>> list = new AtomicReference<>(properties.getFill());
 			AtomicReference<Double> y = new AtomicReference<>(random.nextDouble());
 
@@ -79,8 +78,8 @@ public class PortalEffect {
 					Optional<Chunk> optionalChunk = location.getExtent().getChunk(location.getChunkPosition());
 					
 					if(optionalChunk.isPresent() && optionalChunk.get().isLoaded()) {
-						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), y.get(), random.nextDouble()));
-						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), y.get(), random.nextDouble()));
+						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), y.get(), random.nextDouble()), 64);
+						location.getExtent().spawnParticles(optionalParticle.get(), location.getPosition().add(random.nextDouble(), y.get(), random.nextDouble()), 64);
 					}
 				}
 			}).submit(Main.getPlugin());
@@ -116,11 +115,11 @@ public class PortalEffect {
 	public static void burst(ParticleEffect particle, Location<World> location, boolean player) {
 		for (int i = 0; i < 9; i++) {
 			if (player) {
-				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble() - .5, random.nextDouble() - .5, random.nextDouble() - .5));
-				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble() - .5, random.nextDouble() - .5, random.nextDouble() - .5));
+				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble() - .5, random.nextDouble() - .5, random.nextDouble() - .5), 64);
+				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble() - .5, random.nextDouble() - .5, random.nextDouble() - .5), 64);
 			} else {
-				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble(), random.nextDouble(), random.nextDouble()));
-				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble(), random.nextDouble(), random.nextDouble()));
+				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble(), random.nextDouble(), random.nextDouble()), 64);
+				location.getExtent().spawnParticles(particle, location.getPosition().add(random.nextDouble(), random.nextDouble(), random.nextDouble()), 64);
 			}
 		}
 	}
