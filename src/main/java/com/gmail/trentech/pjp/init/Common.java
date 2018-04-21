@@ -153,7 +153,7 @@ public class Common {
 			Usage usageBlock = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<blockType>", "Specifies the BlockType"));
 			
-			Help portalBlock = new Help("portal block", "block", "Change a portals center block type. Mostly used for creating the portal effect but other mods could make this usefull")
+			Help portalBlock = new Help("portal block", "block", "Change a portals center block type. Useful for non-solid block types such as water, lava and portal blocks. This can be combined with particles")
 					.setPermission("pjp.cmd.portal.block")
 					.setUsage(usageBlock)
 					.addExample("/portal block MyPortal minecraft:portal");
