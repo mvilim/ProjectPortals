@@ -333,7 +333,7 @@ public class PortalService {
 				if (optionalSpawnLocation.isPresent()) {
 					Location<World> spawnLocation = optionalSpawnLocation.get();
 		
-					com.gmail.trentech.pjp.events.TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, local.getPrice(), local.force(), local.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), local));
+					TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, local.getPrice(), local.force(), local.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), local));
 		
 					if (!Sponge.getEventManager().post(teleportEvent)) {
 						spawnLocation = teleportEvent.getDestination();

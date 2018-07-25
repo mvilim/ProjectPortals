@@ -2,7 +2,6 @@ package com.gmail.trentech.pjp.portal.features;
 
 import static org.spongepowered.api.data.DataQuery.of;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
@@ -11,7 +10,6 @@ import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
-import org.spongepowered.api.data.persistence.DataFormats;
 import org.spongepowered.api.data.persistence.DataTranslators;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.world.Location;
@@ -145,24 +143,6 @@ public class Coordinate implements DataSerializable {
 				}
 			}
 
-			return null;
-		}
-	}
-	
-	public static String serialize(Location<World> location) {
-		try {
-			return DataFormats.JSON.write(new Coordinate(location).toContainer());
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			return null;
-		}
-	}
-
-	public static Optional<Location<World>> deserialize(String coordinate) {
-		try {
-			return Sponge.getDataManager().deserialize(Coordinate.class, DataFormats.JSON.read(coordinate)).get().getLocation();
-		} catch (InvalidDataException | IOException e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
