@@ -174,7 +174,7 @@ public class PortalEffect {
 	
 	public static void deactivate(Portal portal) {
 		for (Task task : Sponge.getScheduler().getScheduledTasks()) {
-			if (task.getName().equalsIgnoreCase(portal.getName() + "blockudate") || task.getName().equalsIgnoreCase(portal.getName() + "particleupdate")) {
+			if (task.getName().equalsIgnoreCase(portal.getName() + "blockupdate") || task.getName().equalsIgnoreCase(portal.getName() + "particleupdate")) {
 				task.cancel();
 			}
 		}
