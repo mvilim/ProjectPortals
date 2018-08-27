@@ -8,13 +8,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.particle.ParticleEffect;
-import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleEffect.Builder;
+import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.entity.Entity;
@@ -128,7 +129,8 @@ public class PortalEffect {
 		ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "particles");
 		
 		if(node.getNode("enable").getBoolean()) {
-			Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, node.getNode("teleport", "type").getString());
+			String[] args = node.getNode("teleport", "type").getString().split(":");
+			Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, CatalogKey.of(args[0], args[1]));
 			
 			if(particleType.isPresent()) {
 				Builder builder = ParticleEffect.builder().type(particleType.get());
@@ -152,7 +154,8 @@ public class PortalEffect {
 		ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "particles");
 		
 		if(node.getNode("enable").getBoolean()) {
-			Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, node.getNode("creation", "type").getString());
+			String[] args = node.getNode("creation", "type").getString().split(":");
+			Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, CatalogKey.of(args[0], args[1]));
 			
 			if(particleType.isPresent()) {
 				Builder builder = ParticleEffect.builder().type(particleType.get());

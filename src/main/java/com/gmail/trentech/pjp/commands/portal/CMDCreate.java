@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -72,7 +73,8 @@ public class CMDCreate implements CommandExecutor {
 
 		ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "particles");
 
-		Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, node.getNode("teleport", "type").getString());
+		String[] key = node.getNode("teleport", "type").getString().split(":");
+		Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, CatalogKey.of(key[0], key[1]));
 		
 		Properties properties = new Properties();
 		

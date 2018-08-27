@@ -109,10 +109,10 @@ public class LastLocationData extends AbstractMappedData<String, Coordinate, Las
 	}
 
 	@Override
-	public DataContainer toContainer() {
+	protected DataContainer fillContainer(DataContainer dataContainer) {
 		return super.toContainer().set(LAST_LOCATIONS, getValue());
 	}
-
+	
 	public static class Builder extends AbstractDataBuilder<LastLocationData> implements DataManipulatorBuilder<LastLocationData, ImmutableLastLocationData> {
 
 		public Builder() {

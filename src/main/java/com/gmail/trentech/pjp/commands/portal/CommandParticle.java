@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -72,9 +73,9 @@ public class CommandParticle implements CommandCallable {
 		ParticleType particle;
 		
 		try {
-			String particleId = args[1];
+			String[] particleId = args[1].split(":");
 			
-			Optional<ParticleType> optionalParticle = Sponge.getRegistry().getType(ParticleType.class, particleId);
+			Optional<ParticleType> optionalParticle = Sponge.getRegistry().getType(ParticleType.class, CatalogKey.of(particleId[0], particleId[1]));
 			
 			if(!optionalParticle.isPresent()) {
 				throw new CommandException(Text.of(TextColors.RED, "Not a valid ParticleType"), true);
@@ -101,9 +102,9 @@ public class CommandParticle implements CommandCallable {
 		Builder builder = ParticleEffect.builder().type(particle);
 		if(args.length > 3) {
 			try {
-				String particleOption = args[3];
+				String[] particleOption = args[3].split(":");
 				
-				Optional<ParticleOption> optionalOption = Sponge.getRegistry().getType(ParticleOption.class, particleOption);
+				Optional<ParticleOption> optionalOption = Sponge.getRegistry().getType(ParticleOption.class, CatalogKey.of(particleOption[0], particleOption[1]));
 
 				if(!optionalOption.isPresent()) {
 					throw new CommandException(Text.of(TextColors.RED, "Not a valid ParticleOption"), false);
@@ -121,13 +122,13 @@ public class CommandParticle implements CommandCallable {
 				throw new CommandException(getHelp().getUsageText());
 			}
 
-	    	if(previous.equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
+	    	if(previous.equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getKey().toString())) {
 	    		String id[] = value.split(":");
 	    		
 	    		if(id.length < 2) {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid BlockType"), false);
 	    		}
-				Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, id[0] + ":" + id[1]);
+				Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, CatalogKey.of(id[0], id[1]));
 				
 				if(!optionalBlockType.isPresent()) {
 					throw new CommandException(Text.of(TextColors.RED, "Not a valid BlockType"), false);
@@ -151,24 +152,24 @@ public class CommandParticle implements CommandCallable {
 	    		}
 	    		
 	    		builder.option(ParticleOptions.BLOCK_STATE, state);
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.COLOR.getKey().toString())) {
 	    		Optional<Color> color = Colors.get(value);
 	    		
 	    		if(!color.isPresent()) {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid Color"), false);
 	    		}
 	    		builder.option(ParticleOptions.COLOR, color.get());
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.DIRECTION.getKey().toString())) {
 	    		builder.option(ParticleOptions.DIRECTION, Direction.valueOf(value));
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getKey().toString())) {
 
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getKey().toString())) {
 	    		String id[] = value.split(":");
 	    		
 	    		if(id.length < 2) {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid ItemType"), false);
 	    		}
-				Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, id[0] + ":" + id[1]);
+				Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, CatalogKey.of(id[0], id[1]));
 				
 				if(!optionalItemType.isPresent()) {
 					throw new CommandException(Text.of(TextColors.RED, "Not a valid ItemType"), false);
@@ -191,23 +192,25 @@ public class CommandParticle implements CommandCallable {
 					itemStack = Sponge.getDataManager().deserialize(ItemStack.class, container).get();
 	    		}	    		
 	    		builder.option(ParticleOptions.ITEM_STACK_SNAPSHOT, itemStack.createSnapshot());
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
-	    		Optional<NotePitch> notepitch = Sponge.getRegistry().getType(NotePitch.class, value);
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.NOTE.getKey().toString())) {
+	    		String[] key = value.split(":");
+	    		Optional<NotePitch> notepitch = Sponge.getRegistry().getType(NotePitch.class, CatalogKey.of(key[0], key[1]));
 	    		
 	    		if(!notepitch.isPresent()) {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid NotePitch"), false);
 	    		}
 	    		builder.option(ParticleOptions.NOTE, notepitch.get());
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.OFFSET.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.OFFSET.getKey().toString())) {
 	    		
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
-	    		Optional<PotionEffectType> potionEffect = Sponge.getRegistry().getType(PotionEffectType.class, value);
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getKey().toString())) {
+	    		String[] key = value.split(":");
+	    		Optional<PotionEffectType> potionEffect = Sponge.getRegistry().getType(PotionEffectType.class, CatalogKey.of(key[0], key[1]));
 	    		
 	    		if(!potionEffect.isPresent()) {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid PotionEffectType"), false);
 	    		}
 	    		builder.option(ParticleOptions.POTION_EFFECT_TYPE, potionEffect.get());
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.QUANTITY.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.QUANTITY.getKey().toString())) {
 	    		int quantity;
 	    		try {
 	    			quantity = Integer.parseInt(value);
@@ -215,7 +218,7 @@ public class CommandParticle implements CommandCallable {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid Integer"), false);
 	    		}
 	    		builder.option(ParticleOptions.QUANTITY, quantity);
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.SCALE.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.SCALE.getKey().toString())) {
 	    		double scale;
 	    		try {
 	    			scale = Double.parseDouble(value);
@@ -223,9 +226,9 @@ public class CommandParticle implements CommandCallable {
 	    			throw new CommandException(Text.of(TextColors.RED, "Not a valid Double"), false);
 	    		}
 	    		builder.option(ParticleOptions.SCALE, scale);
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getKey().toString())) {
 
-	    	} else if(previous.equalsIgnoreCase(ParticleOptions.VELOCITY.getId())) {
+	    	} else if(previous.equalsIgnoreCase(ParticleOptions.VELOCITY.getKey().toString())) {
 
 	    	}
 		}
@@ -257,7 +260,7 @@ public class CommandParticle implements CommandCallable {
 			for(Portal portal : Sponge.getServiceManager().provideUnchecked(PortalService.class).all(PortalType.PORTAL)) {
 				if(portal.getName().equalsIgnoreCase(args[0])) {
 					for(ParticleType particleType : Sponge.getRegistry().getAllOf(ParticleType.class)) {
-						list.add(particleType.getId());
+						list.add(particleType.getKey().toString());
 					}
 					return list;
 				}
@@ -270,73 +273,73 @@ public class CommandParticle implements CommandCallable {
 		
 		if(args.length == 2) {
 			for(ParticleType particleType : Sponge.getRegistry().getAllOf(ParticleType.class)) {
-				if(particleType.getId().toLowerCase().equalsIgnoreCase(args[1].toLowerCase())) {
+				if(particleType.getKey().toString().toLowerCase().equalsIgnoreCase(args[1].toLowerCase())) {
 					for(ParticleOption particleOption : Sponge.getRegistry().getAllOf(ParticleOption.class)) {
-						list.add(particleOption.getId());
+						list.add(particleOption.getKey().toString());
 					}
 					return list;
 				}
 				
-				if(particleType.getId().toLowerCase().startsWith(args[1].toLowerCase())) {
-					list.add(particleType.getId());
+				if(particleType.getKey().toString().toLowerCase().startsWith(args[1].toLowerCase())) {
+					list.add(particleType.getKey().toString());
 				}
 			}
 		}
 		
 		if(args.length == 4) {
 			for(ParticleOption particleOption : Sponge.getRegistry().getAllOf(ParticleOption.class)) {
-				if(particleOption.getId().toLowerCase().equalsIgnoreCase(args[3].toLowerCase())) {
-			    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
+				if(particleOption.getKey().toString().toLowerCase().equalsIgnoreCase(args[3].toLowerCase())) {
+			    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getKey().toString())) {
 			    		for(BlockType blockType : Sponge.getRegistry().getAllOf(BlockType.class)) {
-							list.add(blockType.getId());
+							list.add(blockType.getKey().toString());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getKey().toString())) {
 			    		for(Colors color : Colors.values()) {
 							list.add(color.getName());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getKey().toString())) {
 			    		for(Direction direction : Direction.values()) {
 							list.add(direction.name());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getKey().toString())) {
 			    		// IMPLEMENT
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getKey().toString())) {
 			    		for(ItemType itemType : Sponge.getRegistry().getAllOf(ItemType.class)) {
-							list.add(itemType.getId());
+							list.add(itemType.getKey().toString());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getKey().toString())) {
 			    		for(NotePitch notePitch : Sponge.getRegistry().getAllOf(NotePitch.class)) {
-							list.add(notePitch.getId());
+							list.add(notePitch.getKey().toString());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getKey().toString())) {
 			    		for(PotionEffectType potionEffect : Sponge.getRegistry().getAllOf(PotionEffectType.class)) {
-							list.add(potionEffect.getId());
+							list.add(potionEffect.getKey().toString());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getId())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getKey().toString())) {
 			    		list.add("true");
 			    		list.add("false");
 			    	}
 					return list;
 				}
 				
-				if(particleOption.getId().toLowerCase().startsWith(args[3].toLowerCase())) {
-					list.add(particleOption.getId());
+				if(particleOption.getKey().toString().toLowerCase().startsWith(args[3].toLowerCase())) {
+					list.add(particleOption.getKey().toString());
 				}
 			}
 		}
 		
 		if(args.length == 5) {
-	    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
+	    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getKey().toString())) {
 	    		for(BlockType blockType : Sponge.getRegistry().getAllOf(BlockType.class)) {
-					if(blockType.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(blockType.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(blockType.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(blockType.getId());
+					if(blockType.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(blockType.getKey().toString());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getKey().toString())) {
 	    		for(Colors color : Colors.values()) {
 					if(color.getName().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
@@ -346,7 +349,7 @@ public class CommandParticle implements CommandCallable {
 						list.add(color.getName());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getKey().toString())) {
 	    		for(Direction direction : Direction.values()) {
 					if(direction.name().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
@@ -356,36 +359,36 @@ public class CommandParticle implements CommandCallable {
 						list.add(direction.name());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getKey().toString())) {
 	    		// IMPLEMENT
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getKey().toString())) {
 	    		for(ItemType itemType : Sponge.getRegistry().getAllOf(ItemType.class)) {
-					if(itemType.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(itemType.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(itemType.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(itemType.getId());
+					if(itemType.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(itemType.getKey().toString());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getKey().toString())) {
 	    		for(NotePitch notePitch : Sponge.getRegistry().getAllOf(NotePitch.class)) {
-					if(notePitch.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(notePitch.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(notePitch.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(notePitch.getId());
+					if(notePitch.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(notePitch.getKey().toString());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getKey().toString())) {
 	    		for(PotionEffectType potionEffect : Sponge.getRegistry().getAllOf(PotionEffectType.class)) {
-					if(potionEffect.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(potionEffect.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(potionEffect.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(potionEffect.getId());
+					if(potionEffect.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(potionEffect.getKey().toString());
 					}
 	    		}
 	    	}

@@ -111,10 +111,10 @@ public class HomeData extends AbstractMappedData<String, Portal, HomeData, Immut
 	}
 
 	@Override
-	public DataContainer toContainer() {
+	protected DataContainer fillContainer(DataContainer dataContainer) {
 		return super.toContainer().set(PORTALS, getValue());
 	}
-
+	
 	public static class Builder extends AbstractDataBuilder<HomeData> implements DataManipulatorBuilder<HomeData, ImmutableHomeData> {
 
 		public Builder() {

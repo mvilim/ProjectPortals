@@ -74,10 +74,10 @@ public class SignPortalData extends AbstractSingleData<Portal, SignPortalData, I
 	}
 
 	@Override
-	public DataContainer toContainer() {
+	protected DataContainer fillContainer(DataContainer dataContainer) {
 		return super.toContainer().set(PORTAL, getValue());
 	}
-
+	
 	public static class Builder extends AbstractDataBuilder<SignPortalData> implements DataManipulatorBuilder<SignPortalData, ImmutableSignPortalData> {
 
 		public Builder() {

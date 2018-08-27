@@ -5,6 +5,7 @@ import static com.gmail.trentech.pjp.data.Keys.PORTAL;
 import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.immutable.common.AbstractImmutableSingleData;
 import org.spongepowered.api.data.value.BaseValue;
@@ -45,5 +46,10 @@ public class ImmutableSignPortalData extends AbstractImmutableSingleData<Portal,
 	@Override
 	public SignPortalData asMutable() {
 		return new SignPortalData(this.getValue());
+	}
+
+	@Override
+	protected DataContainer fillContainer(DataContainer dataContainer) {
+		return super.toContainer().set(PORTAL, getValue());
 	}
 }

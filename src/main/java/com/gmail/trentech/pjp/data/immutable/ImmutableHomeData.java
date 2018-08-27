@@ -33,7 +33,7 @@ public class ImmutableHomeData extends AbstractImmutableMappedData<String, Porta
 	}
 
 	@Override
-	public DataContainer toContainer() {
+	protected DataContainer fillContainer(DataContainer dataContainer) {
 		return super.toContainer().set(PORTALS, getValue());
 	}
 }

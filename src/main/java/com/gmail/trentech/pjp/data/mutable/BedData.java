@@ -109,10 +109,10 @@ public class BedData extends AbstractMappedData<String, Coordinate, BedData, Imm
 	}
 
 	@Override
-	public DataContainer toContainer() {
+	protected DataContainer fillContainer(DataContainer dataContainer) {
 		return super.toContainer().set(BED_LOCATIONS, getValue());
 	}
-
+	
 	public static class Builder extends AbstractDataBuilder<BedData> implements DataManipulatorBuilder<BedData, ImmutableBedData> {
 
 		public Builder() {
@@ -148,4 +148,6 @@ public class BedData extends AbstractMappedData<String, Coordinate, BedData, Imm
 			return create().fill(dataHolder);
 		}
 	}
+
+
 }

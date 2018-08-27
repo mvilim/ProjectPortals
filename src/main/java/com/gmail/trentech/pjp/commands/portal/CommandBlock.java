@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -59,9 +60,9 @@ public class CommandBlock implements CommandCallable {
 		BlockState blockState;
 		
 		try {
-			String particleId = args[1];
+			String[] particleId = args[1].split(":");
 			
-			Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, particleId);
+			Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, CatalogKey.of(particleId[0], particleId[1]));
 			
 			if(!optionalBlockType.isPresent()) {
 				throw new CommandException(Text.of(TextColors.RED, "Not a valid BlockType"), true);
@@ -93,7 +94,7 @@ public class CommandBlock implements CommandCallable {
 			for(Portal portal : Sponge.getServiceManager().provideUnchecked(PortalService.class).all(PortalType.PORTAL)) {
 				if(portal.getName().equalsIgnoreCase(args[0])) {
 					for(BlockType blockType : Sponge.getRegistry().getAllOf(BlockType.class)) {
-						list.add(blockType.getId());
+						list.add(blockType.getKey().toString());
 					}
 					return list;
 				}
@@ -106,12 +107,12 @@ public class CommandBlock implements CommandCallable {
 		
 		if(args.length == 2) {
 			for(BlockType blockType : Sponge.getRegistry().getAllOf(BlockType.class)) {
-				if(blockType.getId().toLowerCase().equalsIgnoreCase(args[1].toLowerCase())) {
+				if(blockType.getKey().toString().toLowerCase().equalsIgnoreCase(args[1].toLowerCase())) {
 					return list;
 				}
 				
-				if(blockType.getId().toLowerCase().startsWith(args[1].toLowerCase())) {
-					list.add(blockType.getId());
+				if(blockType.getKey().toString().toLowerCase().startsWith(args[1].toLowerCase())) {
+					list.add(blockType.getKey().toString());
 				}
 			}
 		}

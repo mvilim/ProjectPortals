@@ -1,5 +1,6 @@
 package com.gmail.trentech.pjp.data;
 
+import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.value.mutable.MapValue;
@@ -23,8 +24,8 @@ public class Keys {
 	private static final TypeToken<MapValue<String, Coordinate>> LAST_LOCATIONS_MAP_VALUE_TOKEN = new TypeToken<MapValue<String, Coordinate>>() {
 		private static final long serialVersionUID = -1;
 	};
-	public static final Key<Value<Portal>> PORTAL = Key.builder().type(PORTAL_VALUE_TOKEN).id("portal").name("portal").query(DataQuery.of("portal")).build();
-	public static final Key<MapValue<String, Portal>> PORTALS = Key.builder().type(PORTALS_MAP_VALUE_TOKEN).id("portals").name("portals").query(DataQuery.of("portals")).build();
-	public static final Key<MapValue<String, Coordinate>> BED_LOCATIONS = Key.builder().type(BED_LOCATIONS_MAP_VALUE_TOKEN).id("bed_locations").name("bed_locations").query(DataQuery.of("bed_locations")).build();
-	public static final Key<MapValue<String, Coordinate>> LAST_LOCATIONS = Key.builder().type(LAST_LOCATIONS_MAP_VALUE_TOKEN).id("last_locations").name("last_locations").query(DataQuery.of("last_locations")).build();
+	public static final Key<Value<Portal>> PORTAL = Key.builder().type(PORTAL_VALUE_TOKEN).key(CatalogKey.of("pjp", "portal")).name("portal").query(DataQuery.of("portal")).build();
+	public static final Key<MapValue<String, Portal>> PORTALS = Key.builder().type(PORTALS_MAP_VALUE_TOKEN).key(CatalogKey.of("pjp", "portals")).name("portals").query(DataQuery.of("portals")).build();
+	public static final Key<MapValue<String, Coordinate>> BED_LOCATIONS = Key.builder().type(BED_LOCATIONS_MAP_VALUE_TOKEN).key(CatalogKey.of("pjp", "bed_locations")).name("bed_locations").query(DataQuery.of("bed_locations")).build();
+	public static final Key<MapValue<String, Coordinate>> LAST_LOCATIONS = Key.builder().type(LAST_LOCATIONS_MAP_VALUE_TOKEN).key(CatalogKey.of("pjp", "last_locations")).name("last_locations").query(DataQuery.of("last_locations")).build();
 }
