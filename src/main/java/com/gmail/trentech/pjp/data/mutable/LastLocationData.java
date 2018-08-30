@@ -109,7 +109,7 @@ public class LastLocationData extends AbstractMappedData<String, Coordinate, Las
 	}
 
 	@Override
-	protected DataContainer fillContainer(DataContainer dataContainer) {
+	public DataContainer toContainer() {
 		return super.toContainer().set(LAST_LOCATIONS, getValue());
 	}
 	

@@ -109,7 +109,7 @@ public class BedData extends AbstractMappedData<String, Coordinate, BedData, Imm
 	}
 
 	@Override
-	protected DataContainer fillContainer(DataContainer dataContainer) {
+	public DataContainer toContainer() {
 		return super.toContainer().set(BED_LOCATIONS, getValue());
 	}
 	

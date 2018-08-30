@@ -33,7 +33,7 @@ public class ImmutableBedData extends AbstractImmutableMappedData<String, Coordi
 	}
 
 	@Override
-	protected DataContainer fillContainer(DataContainer dataContainer) {
+	public DataContainer toContainer() {
 		return super.toContainer().set(BED_LOCATIONS, getValue());
 	}
 }

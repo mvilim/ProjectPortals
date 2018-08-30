@@ -74,7 +74,7 @@ public class SignPortalData extends AbstractSingleData<Portal, SignPortalData, I
 	}
 
 	@Override
-	protected DataContainer fillContainer(DataContainer dataContainer) {
+	public DataContainer toContainer() {
 		return super.toContainer().set(PORTAL, getValue());
 	}
 	

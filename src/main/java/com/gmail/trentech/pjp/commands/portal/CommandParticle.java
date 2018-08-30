@@ -119,7 +119,7 @@ public class CommandParticle implements CommandCallable {
 			for(Portal portal : Sponge.getServiceManager().provideUnchecked(PortalService.class).all(PortalType.PORTAL)) {
 				if(portal.getName().equalsIgnoreCase(args[0])) {
 					for(ParticleType particleType : Sponge.getRegistry().getAllOf(ParticleType.class)) {
-						list.add(particleType.getKey().toString());
+						list.add(particleType.getId());
 					}
 					return list;
 				}
@@ -132,73 +132,73 @@ public class CommandParticle implements CommandCallable {
 		
 		if(args.length == 2) {
 			for(ParticleType particleType : Sponge.getRegistry().getAllOf(ParticleType.class)) {
-				if(particleType.getKey().toString().toLowerCase().equalsIgnoreCase(args[1].toLowerCase())) {
+				if(particleType.getId().toLowerCase().equalsIgnoreCase(args[1].toLowerCase())) {
 					for(ParticleOption particleOption : Sponge.getRegistry().getAllOf(ParticleOption.class)) {
-						list.add(particleOption.getKey().toString());
+						list.add(particleOption.getId());
 					}
 					return list;
 				}
 				
-				if(particleType.getKey().toString().toLowerCase().startsWith(args[1].toLowerCase())) {
-					list.add(particleType.getKey().toString());
+				if(particleType.getId().toLowerCase().startsWith(args[1].toLowerCase())) {
+					list.add(particleType.getId());
 				}
 			}
 		}
 		
 		if(args.length == 4) {
 			for(ParticleOption particleOption : Sponge.getRegistry().getAllOf(ParticleOption.class)) {
-				if(particleOption.getKey().toString().toLowerCase().equalsIgnoreCase(args[3].toLowerCase())) {
-			    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getKey().toString())) {
+				if(particleOption.getId().toLowerCase().equalsIgnoreCase(args[3].toLowerCase())) {
+			    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
 			    		for(BlockType blockType : Sponge.getRegistry().getAllOf(BlockType.class)) {
-							list.add(blockType.getKey().toString());
+							list.add(blockType.getId());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getKey().toString())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
 			    		for(Colors color : Colors.values()) {
 							list.add(color.getName());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getKey().toString())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
 			    		for(Direction direction : Direction.values()) {
 							list.add(direction.name());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getKey().toString())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
 			    		// IMPLEMENT
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getKey().toString())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
 			    		for(ItemType itemType : Sponge.getRegistry().getAllOf(ItemType.class)) {
-							list.add(itemType.getKey().toString());
+							list.add(itemType.getId());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getKey().toString())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
 			    		for(NotePitch notePitch : Sponge.getRegistry().getAllOf(NotePitch.class)) {
-							list.add(notePitch.getKey().toString());
+							list.add(notePitch.getId());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getKey().toString())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
 			    		for(PotionEffectType potionEffect : Sponge.getRegistry().getAllOf(PotionEffectType.class)) {
-							list.add(potionEffect.getKey().toString());
+							list.add(potionEffect.getId());
 			    		}
-			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getKey().toString())) {
+			    	} else if(args[3].equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getId())) {
 			    		list.add("true");
 			    		list.add("false");
 			    	}
 					return list;
 				}
 				
-				if(particleOption.getKey().toString().toLowerCase().startsWith(args[3].toLowerCase())) {
-					list.add(particleOption.getKey().toString());
+				if(particleOption.getId().toLowerCase().startsWith(args[3].toLowerCase())) {
+					list.add(particleOption.getId());
 				}
 			}
 		}
 		
 		if(args.length == 5) {
-	    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getKey().toString())) {
+	    	if(args[3].equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
 	    		for(BlockType blockType : Sponge.getRegistry().getAllOf(BlockType.class)) {
-					if(blockType.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(blockType.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(blockType.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(blockType.getKey().toString());
+					if(blockType.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(blockType.getId());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getKey().toString())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
 	    		for(Colors color : Colors.values()) {
 					if(color.getName().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
@@ -208,7 +208,7 @@ public class CommandParticle implements CommandCallable {
 						list.add(color.getName());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getKey().toString())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
 	    		for(Direction direction : Direction.values()) {
 					if(direction.name().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
@@ -218,36 +218,36 @@ public class CommandParticle implements CommandCallable {
 						list.add(direction.name());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getKey().toString())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
 	    		// IMPLEMENT
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getKey().toString())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
 	    		for(ItemType itemType : Sponge.getRegistry().getAllOf(ItemType.class)) {
-					if(itemType.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(itemType.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(itemType.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(itemType.getKey().toString());
+					if(itemType.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(itemType.getId());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getKey().toString())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
 	    		for(NotePitch notePitch : Sponge.getRegistry().getAllOf(NotePitch.class)) {
-					if(notePitch.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(notePitch.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(notePitch.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(notePitch.getKey().toString());
+					if(notePitch.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(notePitch.getId());
 					}
 	    		}
-	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getKey().toString())) {
+	    	} else if(args[3].equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
 	    		for(PotionEffectType potionEffect : Sponge.getRegistry().getAllOf(PotionEffectType.class)) {
-					if(potionEffect.getKey().toString().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
+					if(potionEffect.getId().toLowerCase().equalsIgnoreCase(args[4].toLowerCase())) {
 						return list;
 					}
 					
-					if(potionEffect.getKey().toString().toLowerCase().startsWith(args[4].toLowerCase())) {
-						list.add(potionEffect.getKey().toString());
+					if(potionEffect.getId().toLowerCase().startsWith(args[4].toLowerCase())) {
+						list.add(potionEffect.getId());
 					}
 	    		}
 	    	}

@@ -33,7 +33,7 @@ public class ImmutableLastLocationData extends AbstractImmutableMappedData<Strin
 	}
 
 	@Override
-	protected DataContainer fillContainer(DataContainer dataContainer) {
+	public DataContainer toContainer() {
 		return super.toContainer().set(LAST_LOCATIONS, getValue());
 	}
 }

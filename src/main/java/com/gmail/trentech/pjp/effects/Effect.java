@@ -4,7 +4,6 @@ import static org.spongepowered.api.data.DataQuery.of;
 
 import java.util.Optional;
 
-import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -67,16 +66,10 @@ public class Effect implements DataSerializable {
 	}
 	
 	public ParticleEffect getEffect() throws InvalidEffectException {
-		String[] particleArgs = particle.split(":");
-
-		if(particleArgs.length != 2) {
-			throw new InvalidEffectException(particleArgs + " is not a valid ParticleType");
-		}
-		
-		Optional<ParticleType> optionalParticle = Sponge.getRegistry().getType(ParticleType.class, CatalogKey.of(particleArgs[0], particleArgs[1]));
+		Optional<ParticleType> optionalParticle = Sponge.getRegistry().getType(ParticleType.class, particle);
 		
 		if(!optionalParticle.isPresent()) {
-			throw new InvalidEffectException(particleArgs + " is not a valid ParticleType");
+			throw new InvalidEffectException(particle + " is not a valid ParticleType");
 		}
 		ParticleType particleType = optionalParticle.get();
 
@@ -85,31 +78,25 @@ public class Effect implements DataSerializable {
 		}
 		
 		ParticleEffect.Builder builder = ParticleEffect.builder().type(particleType);
-		
-		String[] optionArgs = option.get().split(":");
 
-		if(optionArgs.length != 2) {
-			throw new InvalidEffectException(optionArgs + " is not a valid ParticleOption");
-		}
-		
 		@SuppressWarnings("rawtypes")
-		Optional<ParticleOption> optionalOption = Sponge.getRegistry().getType(ParticleOption.class, CatalogKey.of(optionArgs[0], optionArgs[1]));
+		Optional<ParticleOption> optionalOption = Sponge.getRegistry().getType(ParticleOption.class, option.get());
 
 		if(!optionalOption.isPresent()) {
-			throw new InvalidEffectException(optionArgs + " is not a valid ParticleOption");
+			throw new InvalidEffectException(option.get() + " is not a valid ParticleOption");
 		}
 
-		if(option.get().equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getKey().toString())) {
+		if(option.get().equalsIgnoreCase(ParticleOptions.BLOCK_STATE.getId())) {
     		String valueArgs[] = value.get().split(":");
     		
     		if(valueArgs.length < 2) {
     			throw new InvalidEffectException("Not a valid BlockType");
     		}
 
-			Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, CatalogKey.of(valueArgs[0], valueArgs[1]));
+			Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, valueArgs[0] + ":" + valueArgs[1]);
 			
 			if(!optionalBlockType.isPresent()) {
-				throw new InvalidEffectException(valueArgs[0] + ":" + valueArgs[1] + " is not a valid BlockType");
+				throw new InvalidEffectException(value.get() + " is not a valid BlockType");
 			}
 			
 			BlockState state = optionalBlockType.get().getDefaultState();
@@ -130,7 +117,7 @@ public class Effect implements DataSerializable {
     		}
     		
     		builder.option(ParticleOptions.BLOCK_STATE, state);
-		} else if(option.get().equalsIgnoreCase(ParticleOptions.COLOR.getKey().toString())) {
+		} else if(option.get().equalsIgnoreCase(ParticleOptions.COLOR.getId())) {
     		Optional<Color> color = Colors.get(value.get());
     		
     		if(!color.isPresent()) {
@@ -138,18 +125,18 @@ public class Effect implements DataSerializable {
     		}
     		
     		builder.option(ParticleOptions.COLOR, color.get());
-		} else if(option.get().equalsIgnoreCase(ParticleOptions.DIRECTION.getKey().toString())) {
+		} else if(option.get().equalsIgnoreCase(ParticleOptions.DIRECTION.getId())) {
 			builder.option(ParticleOptions.DIRECTION, Direction.valueOf(value.get()));
-		} else if(option.get().equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getKey().toString())) {
+		} else if(option.get().equalsIgnoreCase(ParticleOptions.FIREWORK_EFFECTS.getId())) {
 			// ADD IMPLEMENTATION
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getKey().toString())) {
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.ITEM_STACK_SNAPSHOT.getId())) {
     		String valueArgs[] = value.get().split(":");
     		
     		if(valueArgs.length < 2) {
     			throw new InvalidEffectException(value.get() + " is not a valid ItemType");
     		}
 
-			Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, CatalogKey.of(valueArgs[0], valueArgs[1]));
+			Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, valueArgs[0] + ":" + valueArgs[1]);
 			
 			if(!optionalItemType.isPresent()) {
 				throw new InvalidEffectException(value.get() + " is not a valid ItemType");
@@ -173,21 +160,15 @@ public class Effect implements DataSerializable {
     		}
     		
     		builder.option(ParticleOptions.ITEM_STACK_SNAPSHOT, itemStack.createSnapshot());
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.NOTE.getKey().toString())) {
-    		String valueArgs[] = value.get().split(":");
-    		
-    		if(valueArgs.length != 2) {
-    			throw new InvalidEffectException(value.get() + " is not a valid NotePitch");
-    		}
-
-    		Optional<NotePitch> notepitch = Sponge.getRegistry().getType(NotePitch.class, CatalogKey.of(valueArgs[0], valueArgs[1]));
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.NOTE.getId())) {
+    		Optional<NotePitch> notepitch = Sponge.getRegistry().getType(NotePitch.class, value.get());
     		
     		if(!notepitch.isPresent()) {
     			throw new InvalidEffectException(value.get() + " is not a valid NotePitch");
     		}
     		
     		builder.option(ParticleOptions.NOTE, notepitch.get());
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.OFFSET.getKey().toString())) {
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.OFFSET.getId())) {
     		String valueArgs[] = value.get().split(",");
     		
     		if(valueArgs.length != 3) {
@@ -203,21 +184,15 @@ public class Effect implements DataSerializable {
     		}
     		
     		builder.option(ParticleOptions.OFFSET, new Vector3d(Double.parseDouble(valueArgs[0]), Double.parseDouble(valueArgs[1]), Double.parseDouble(valueArgs[2])));
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getKey().toString())) {
-    		String valueArgs[] = value.get().split(":");
-    		
-    		if(valueArgs.length != 2) {
-    			throw new InvalidEffectException(value.get() + " is not a valid PotionEffectType");
-    		}
-
-    		Optional<PotionEffectType> potionEffect = Sponge.getRegistry().getType(PotionEffectType.class, CatalogKey.of(valueArgs[0], valueArgs[1]));
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.POTION_EFFECT_TYPE.getId())) {
+    		Optional<PotionEffectType> potionEffect = Sponge.getRegistry().getType(PotionEffectType.class, value.get());
     		
     		if(!potionEffect.isPresent()) {
     			throw new InvalidEffectException(value.get() + " is not a valid PotionEffectType");
     		}
     		
     		builder.option(ParticleOptions.POTION_EFFECT_TYPE, potionEffect.get());
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.QUANTITY.getKey().toString())) {
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.QUANTITY.getId())) {
     		int quantity;
     		
     		try {
@@ -227,7 +202,7 @@ public class Effect implements DataSerializable {
     		}
     		
     		builder.option(ParticleOptions.QUANTITY, quantity);
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.SCALE.getKey().toString())) {
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.SCALE.getId())) {
     		double scale;
     		
     		try {
@@ -237,14 +212,14 @@ public class Effect implements DataSerializable {
     		}
     		
     		builder.option(ParticleOptions.SCALE, scale);
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getKey().toString())) {
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.SLOW_HORIZONTAL_VELOCITY.getId())) {
 
     		if(!value.get().equalsIgnoreCase("true") && !value.get().equalsIgnoreCase("false")) {
     			throw new InvalidEffectException(value.get() + " is not a valid Boolean");
     		}
 
     		builder.option(ParticleOptions.SLOW_HORIZONTAL_VELOCITY, Boolean.parseBoolean(value.get()));
-    	} else if(option.get().equalsIgnoreCase(ParticleOptions.VELOCITY.getKey().toString())) {
+    	} else if(option.get().equalsIgnoreCase(ParticleOptions.VELOCITY.getId())) {
     		String valueArgs[] = value.get().split(",");
     		
     		if(valueArgs.length != 3) {

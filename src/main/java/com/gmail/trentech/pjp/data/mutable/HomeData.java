@@ -111,7 +111,7 @@ public class HomeData extends AbstractMappedData<String, Portal, HomeData, Immut
 	}
 
 	@Override
-	protected DataContainer fillContainer(DataContainer dataContainer) {
+	public DataContainer toContainer() {
 		return super.toContainer().set(PORTALS, getValue());
 	}
 	
