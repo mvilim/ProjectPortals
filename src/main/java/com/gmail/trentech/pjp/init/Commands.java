@@ -10,6 +10,7 @@ import com.gmail.trentech.pjp.commands.home.CMDHome;
 import com.gmail.trentech.pjp.commands.portal.CMDPortal;
 import com.gmail.trentech.pjp.commands.portal.CMDSave;
 import com.gmail.trentech.pjp.commands.portal.CommandBlock;
+import com.gmail.trentech.pjp.commands.portal.CommandDirection;
 import com.gmail.trentech.pjp.commands.portal.CommandParticle;
 import com.gmail.trentech.pjp.commands.warp.CMDWarp;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
@@ -216,6 +217,7 @@ public class Commands {
 		    .child(cmdPortalRename, "rename", "rn")
 		    .child(new CommandParticle(), "particle", "p")
 		    .child(new CommandBlock(), "block", "b")
+		    .child(new CommandDirection(), "direction", "dir")
 		    .child(cmdPortalPrice, "price", "pr")
 		    .child(cmdPortalPermission, "permission", "perm")
 		    .child(cmdPortalList, "list", "ls")

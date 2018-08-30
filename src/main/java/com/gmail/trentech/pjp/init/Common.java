@@ -136,6 +136,14 @@ public class Common {
 					.addExample("/portal destination Server1")
 					.addExample("/portal destination MyPortal DIM1");
 			
+			Usage usageDirection = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
+					.addArgument(Argument.of("<direction>", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"));
+			
+			Help portalDirection = new Help("portal direction", "direction", "Change as existing portals spawn direction")
+					.setPermission("simplyportals.cmd.portal.direction")
+					.setUsage(usageDirection)
+					.addExample("/portal direction Skyland NORTH");
+			
 			Help portalList = new Help("portal list", "list", "List all portals")
 					.setPermission("pjp.cmd.portal.list");
 			
@@ -207,6 +215,7 @@ public class Common {
 					.addChild(portalSave)
 					.addChild(portalPermission)
 					.addChild(portalCommand)
+					.addChild(portalDirection)
 					.addChild(portalRename)
 					.addChild(portalBlock)
 					.addChild(portalRemove)
