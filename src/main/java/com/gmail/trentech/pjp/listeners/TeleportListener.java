@@ -53,17 +53,6 @@ public class TeleportListener {
 		this.timings = timings;
 	}
 
-//	@Listener
-//	public void onConstructPortalEvent(ConstructPortalEvent event) {
-//		for(Location<World> location : event.getLocations()) {
-//			location.setBlock(BlockState.builder().blockType(BlockTypes.AIR).build());
-//		}
-//		
-//		for(Player player : event.getCause().allOf(Player.class)) {
-//			player.sendMessage(Text.of(TextColors.RED, "Portal construction disabled!"));
-//		}
-//	}
-	
 	@Listener
 	public void onInteractBLockEvent(InteractBlockEvent.Secondary event, @Root Player player) {
 		if(event.getTargetBlock().getState().getType().equals(BlockTypes.BED)) {

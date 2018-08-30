@@ -244,15 +244,6 @@ public class PortalService {
 	public boolean execute(Player player, Portal portal) {
 		AtomicReference<Boolean> bool = new AtomicReference<>(false);
 
-		Optional<String> optionalPermission = portal.getPermission();
-		
-		if(optionalPermission.isPresent()) {
-			if (!player.hasPermission(optionalPermission.get())) {
-				player.sendMessage(Text.of(TextColors.DARK_RED, "Requires permission ", TextColors.YELLOW, optionalPermission.get()));
-				return false;
-			}
-		}
-		
 		Optional<Command> optionalCommand = portal.getCommand();
 		
 		if(optionalCommand.isPresent()) {

@@ -222,6 +222,8 @@ public class PortalListener {
 		}
 	}
 
+	private static List<UUID> mobCache = new ArrayList<>();
+	
 	@Listener
 	public void onMoveEntityEventLiving(MoveEntityEvent event, @Getter("getTargetEntity") Living living) {
 		if (living instanceof Player) {
@@ -231,6 +233,12 @@ public class PortalListener {
 		timings.onMoveEntityEvent().startTimingIfSync();
 
 		try {
+			UUID uuid = living.getUniqueId();
+
+			if (mobCache.contains(uuid)) {
+				return;
+			}
+			
 			Location<World> location = living.getLocation();
 
 			Optional<Portal> optionalPortal = Sponge.getServiceManager().provide(PortalService.class).get().get(location, PortalType.PORTAL);
@@ -261,23 +269,36 @@ public class PortalListener {
 			if (!optionalSpawnLocation.isPresent()) {
 				return;
 			}
+			
+			mobCache.add(uuid);
+			
 			Location<World> spawnLocation = optionalSpawnLocation.get();
 
 			Vector3d rotation = local.getRotation().toVector3d();
 
-			event.setToTransform(new Transform<World>(spawnLocation.getExtent(), spawnLocation.getPosition(), rotation));
+			living.setLocationAndRotation(spawnLocation, rotation);
+			
+			Sponge.getScheduler().createTaskBuilder().delayTicks(100).execute(c -> {
+				mobCache.remove(uuid);
+			}).submit(Main.getPlugin());
 		} finally {
 			timings.onMoveEntityEvent().stopTimingIfSync();
 		}
 	}
 
-	private static List<UUID> cache = new ArrayList<>();
+	private static List<UUID> playerCache = new ArrayList<>();
 
 	@Listener(order = Order.FIRST)
 	public void onMoveEntityEventPlayer(MoveEntityEvent event, @Getter("getTargetEntity") Player player) {
 		timings.onMoveEntityEvent().startTimingIfSync();
 
 		try {
+			UUID uuid = player.getUniqueId();
+
+			if (playerCache.contains(uuid)) {
+				return;
+			}
+			
 			Location<World> location = event.getFromTransform().getLocation();
 
 			PortalService portalService = Sponge.getServiceManager().provide(PortalService.class).get();
@@ -289,17 +310,12 @@ public class PortalListener {
 			}
 			Portal portal = optionalPortal.get();
 
-			UUID uuid = player.getUniqueId();
-
-			if (cache.contains(uuid)) {
-				return;
-			}
-			cache.add(uuid);
+			playerCache.add(uuid);
 
 			portalService.execute(player, portal);
 
-			Sponge.getScheduler().createTaskBuilder().delayTicks(20).execute(c -> {
-				cache.remove(uuid);
+			Sponge.getScheduler().createTaskBuilder().delayTicks(40).execute(c -> {
+				playerCache.remove(uuid);
 			}).submit(Main.getPlugin());
 		} finally {
 			timings.onMoveEntityEvent().stopTimingIfSync();

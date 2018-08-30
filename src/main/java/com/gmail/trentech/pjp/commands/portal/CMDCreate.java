@@ -4,31 +4,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.spongepowered.api.CatalogKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.effect.particle.ParticleEffect;
-import org.spongepowered.api.effect.particle.ParticleEffect.Builder;
-import org.spongepowered.api.effect.particle.ParticleOptions;
-import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
-import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.World;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.gmail.trentech.pjc.core.BungeeManager;
-import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjc.help.Help;
-import com.gmail.trentech.pjp.Main;
-import com.gmail.trentech.pjp.effects.Colors;
 import com.gmail.trentech.pjp.listeners.PortalListener;
 import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
@@ -38,8 +29,6 @@ import com.gmail.trentech.pjp.portal.features.Coordinate;
 import com.gmail.trentech.pjp.portal.features.Coordinate.Preset;
 import com.gmail.trentech.pjp.portal.features.Properties;
 import com.gmail.trentech.pjp.rotation.Rotation;
-
-import ninja.leaping.configurate.ConfigurationNode;
 
 public class CMDCreate implements CommandExecutor {
 
@@ -71,28 +60,8 @@ public class CMDCreate implements CommandExecutor {
 		}
 		String destination = args.<String>getOne("destination").get();
 
-		ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "particles");
-
-		String[] key = node.getNode("teleport", "type").getString().split(":");
-		Optional<ParticleType> particleType = Sponge.getRegistry().getType(ParticleType.class, CatalogKey.of(key[0], key[1]));
-		
 		Properties properties = new Properties();
-		
-		if(particleType.isPresent()) {
-			Builder builder = ParticleEffect.builder().type(particleType.get());
-			
-			String colorName = node.getNode("teleport", "color").getString();
-			
-			if(!colorName.equalsIgnoreCase("none")) {
-				Optional<Color> color = Colors.get(colorName);
-				
-				if(color.isPresent()) {
-					builder.option(ParticleOptions.COLOR, color.get());
-				}
-			}
-			properties.setParticle(Optional.of(builder.build()));
-		}	
-		
+
 		if (args.hasAny("b")) {
 			Consumer<List<String>> consumer1 = (list) -> {
 				if (!list.contains(destination)) {

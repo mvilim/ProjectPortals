@@ -15,59 +15,48 @@ import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
-import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import com.gmail.trentech.pjp.effects.Effect;
 
 public class Properties implements DataSerializable {
 
 	private static final DataQuery LOC = of("location");
-	private static final DataQuery INTENSITY = of("intensity");
 	private static final DataQuery FRAME = of("frame");
 	private static final DataQuery FILL = of("fill");
-	private static final DataQuery PARTICLE = of("particle");
+	private static final DataQuery EFFECT = of("effect");
 	private static final DataQuery BLOCKSTATE = of("block");
 	
 	private List<Location<World>> frame = new ArrayList<>();
 	private List<Location<World>> fill = new ArrayList<>();
-	private Optional<ParticleEffect> particle = Optional.empty();
+	private Optional<Effect> effect = Optional.empty();
 	private Optional<BlockState> blockState = Optional.empty();
-	private int intensity = 40;
-	
-	public Properties(Optional<ParticleEffect> particle, Optional<BlockState> blockState, int intensity) {
-		this.particle = particle;
+
+	public Properties(Optional<Effect> effect, Optional<BlockState> blockState) {
+		this.effect = effect;
 		this.blockState = blockState;
-		this.intensity = intensity;
 	}
 
-	public Properties(List<Location<World>> frame, List<Location<World>> fill, Optional<ParticleEffect> particle, Optional<BlockState> blockState, int intensity) {
+	public Properties(List<Location<World>> frame, List<Location<World>> fill, Optional<Effect> effect, Optional<BlockState> blockState) {
 		this.frame = frame;
 		this.fill = fill;
-		this.particle = particle;
+		this.effect = effect;
 		this.blockState = blockState;
-		this.intensity = intensity;
 	}
 
 	public Properties() {
 
 	}
 
-	public Optional<ParticleEffect> getParticle() {
-		return particle;
+	public Optional<Effect> getEffect() {
+		return effect;
 	}
 
-	public void setParticle(Optional<ParticleEffect> particle) {
-		this.particle = particle;
+	public void setEffect(Optional<Effect> effect) {
+		this.effect = effect;
 	}
 
-	public int getIntensity() {
-		return intensity;
-	}
-	
-	public void setIntensity(int intensity) {
-		this.intensity = intensity;
-	}
-	
 	public Optional<BlockState> getBlockState() {
 		return blockState;
 	}
@@ -107,10 +96,10 @@ public class Properties implements DataSerializable {
 
 	@Override
 	public DataContainer toContainer() {
-		DataContainer container = DataContainer.createNew().set(INTENSITY, intensity);
+		DataContainer container = DataContainer.createNew();
 		
-		if(particle.isPresent()) {
-			container.set(PARTICLE, particle.get());
+		if(effect.isPresent()) {
+			container.set(EFFECT, effect.get());
 		}
 
 		if (blockState.isPresent()) {
@@ -142,15 +131,10 @@ public class Properties implements DataSerializable {
 
 		@Override
 		protected Optional<Properties> buildContent(DataView container) throws InvalidDataException {
-			int intensity = 40;
-			Optional<ParticleEffect> particle = Optional.empty();
+			Optional<Effect> effect = Optional.empty();
 			Optional<BlockState> blockState = Optional.empty();
 			List<Location<World>> frame = new ArrayList<>();
 			List<Location<World>> fill = new ArrayList<>();
-			
-			if (container.contains(INTENSITY)) {
-				intensity = container.getInt(INTENSITY).get();
-			}
 
 			if (container.contains(FRAME)) {
 				for (DataView data : container.getViewList(FRAME).get()) {
@@ -164,15 +148,15 @@ public class Properties implements DataSerializable {
 				}
 			}
 
-			if (container.contains(PARTICLE)) {
-				particle = container.getSerializable(PARTICLE, ParticleEffect.class);
+			if (container.contains(EFFECT)) {
+				effect = container.getSerializable(EFFECT, Effect.class);
 			}
 
 			if (container.contains(BLOCKSTATE)) {			
 				blockState = container.getSerializable(BLOCKSTATE, BlockState.class);
 			}
 
-			return Optional.of(new Properties(frame, fill, particle, blockState, intensity));
+			return Optional.of(new Properties(frame, fill, effect, blockState));
 		}
 	}
 }
