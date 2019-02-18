@@ -22,11 +22,11 @@ import com.google.common.base.Preconditions;
 public class SignPortalData extends AbstractSingleData<Portal, SignPortalData, ImmutableSignPortalData> {
 
 	public SignPortalData() {
-		super(null, PORTAL);
+		super(PORTAL, null);
 	}
 
 	public SignPortalData(Portal value) {
-		super(value, PORTAL);
+		super(PORTAL, value);
 	}
 
 	public Value<Portal> portal() {

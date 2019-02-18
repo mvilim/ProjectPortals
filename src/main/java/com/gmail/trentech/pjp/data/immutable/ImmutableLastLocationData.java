@@ -15,7 +15,7 @@ import com.gmail.trentech.pjp.portal.features.Coordinate;
 public class ImmutableLastLocationData extends AbstractImmutableMappedData<String, Coordinate, ImmutableLastLocationData, LastLocationData> {
 
 	public ImmutableLastLocationData(Map<String, Coordinate> value) {
-		super(value, LAST_LOCATIONS);
+		super(LAST_LOCATIONS, value);
 	}
 
 	public ImmutableMapValue<String, Coordinate> lastLocations() {

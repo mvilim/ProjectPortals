@@ -17,7 +17,7 @@ import com.gmail.trentech.pjp.portal.Portal;
 public class ImmutableSignPortalData extends AbstractImmutableSingleData<Portal, ImmutableSignPortalData, SignPortalData> {
 
 	public ImmutableSignPortalData(Portal value) {
-		super(value, PORTAL);
+		super(PORTAL, value);
 	}
 
 	public ImmutableValue<Portal> sign() {

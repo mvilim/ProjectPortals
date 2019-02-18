@@ -15,7 +15,7 @@ import com.gmail.trentech.pjp.portal.features.Coordinate;
 public class ImmutableBedData extends AbstractImmutableMappedData<String, Coordinate, ImmutableBedData, BedData> {
 
 	public ImmutableBedData(Map<String, Coordinate> value) {
-		super(value, BED_LOCATIONS);
+		super(BED_LOCATIONS, value);
 	}
 
 	public ImmutableMapValue<String, Coordinate> homes() {
