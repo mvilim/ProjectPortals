@@ -26,11 +26,11 @@ import com.google.common.base.Preconditions;
 public class BedData extends AbstractMappedData<String, Coordinate, BedData, ImmutableBedData> {
 
 	public BedData(Map<String, Coordinate> value) {
-		super(value, BED_LOCATIONS);
+		super(BED_LOCATIONS, value);
 	}
 
 	public BedData() {
-		super(new HashMap<>(), BED_LOCATIONS);
+		super(BED_LOCATIONS, new HashMap<>());
 	}
 
 	public MapValue<String, Coordinate> portals() {

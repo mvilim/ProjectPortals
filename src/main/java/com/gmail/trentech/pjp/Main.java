@@ -72,10 +72,10 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		DataRegistration.builder().dataClass(BedData.class).immutableClass(ImmutableBedData.class).builder(new BedData.Builder()).dataName("bed")
-			.manipulatorId("pjp_bed").buildAndRegister(Main.getPlugin());
-		DataRegistration.builder().dataClass(LastLocationData.class).immutableClass(ImmutableLastLocationData.class).builder(new LastLocationData.Builder()).dataName("last_location")
-			.manipulatorId("pjp_last_location").buildAndRegister(Main.getPlugin());
+		DataRegistration.builder().dataClass(BedData.class).immutableClass(ImmutableBedData.class).builder(new BedData.Builder()).name("bed")
+			.id("pjp_bed").build();
+		DataRegistration.builder().dataClass(LastLocationData.class).immutableClass(ImmutableLastLocationData.class).builder(new LastLocationData.Builder()).name("last_location")
+			.id("pjp_last_location").build();
 	}
 
 	@Listener
@@ -124,7 +124,7 @@ public class Main {
 		}
 		if (modules.getNode("signs").getBoolean()) {
 			DataRegistration<SignPortalData, ImmutableSignPortalData> signData = DataRegistration.builder().dataClass(SignPortalData.class).immutableClass(ImmutableSignPortalData.class)
-				.builder(new SignPortalData.Builder()).dataName("sign").manipulatorId("pjp_sign").buildAndRegister(Main.getPlugin());
+				.builder(new SignPortalData.Builder()).name("sign").id("pjp_sign").build();
 			
 			Sponge.getDataManager().registerLegacyManipulatorIds("com.gmail.trentech.pjp.data.mutable.SignPortalData", signData);
 			
@@ -149,7 +149,7 @@ public class Main {
 		
 		if (modules.getNode("homes").getBoolean()) {
 			DataRegistration<HomeData, ImmutableHomeData> homeData = DataRegistration.builder().dataClass(HomeData.class).immutableClass(ImmutableHomeData.class)
-				.builder(new HomeData.Builder()).dataName("home").manipulatorId("pjp_home").buildAndRegister(Main.getPlugin());
+				.builder(new HomeData.Builder()).name("home").id("pjp_home").build();
 
 			Sponge.getDataManager().registerLegacyManipulatorIds("com.gmail.trentech.pjp.data.mutable.HomeData", homeData);
 			

@@ -26,11 +26,11 @@ import com.google.common.base.Preconditions;
 public class HomeData extends AbstractMappedData<String, Portal, HomeData, ImmutableHomeData> {
 
 	public HomeData(Map<String, Portal> value) {
-		super(value, PORTALS);
+		super(PORTALS, value);
 	}
 
 	public HomeData() {
-		super(new HashMap<>(), PORTALS);
+		super(PORTALS, new HashMap<>());
 	}
 
 	public MapValue<String, Portal> portals() {

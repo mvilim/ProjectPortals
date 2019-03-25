@@ -15,7 +15,7 @@ import com.gmail.trentech.pjp.portal.Portal;
 public class ImmutableHomeData extends AbstractImmutableMappedData<String, Portal, ImmutableHomeData, HomeData> {
 
 	public ImmutableHomeData(Map<String, Portal> value) {
-		super(value, PORTALS);
+		super(PORTALS, value);
 	}
 
 	public ImmutableMapValue<String, Portal> homes() {

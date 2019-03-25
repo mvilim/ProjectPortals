@@ -26,11 +26,11 @@ import com.google.common.base.Preconditions;
 public class LastLocationData extends AbstractMappedData<String, Coordinate, LastLocationData, ImmutableLastLocationData> {
 
 	public LastLocationData(Map<String, Coordinate> value) {
-		super(value, LAST_LOCATIONS);
+		super(LAST_LOCATIONS, value);
 	}
 
 	public LastLocationData() {
-		super(new HashMap<>(), LAST_LOCATIONS);
+		super(LAST_LOCATIONS, new HashMap<>());
 	}
 
 	public MapValue<String, Coordinate> portals() {
