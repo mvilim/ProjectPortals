@@ -11,6 +11,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.Living;
@@ -51,11 +52,32 @@ public class PortalListener {
 	}
 
 	@Listener
-	public void onChangeBlockEventPlaceCreate(ChangeBlockEvent.Place event, @Root Player player) {
+	public void onChangeBlockEventPlaceCreate(ChangeBlockEvent.Place event, @Root Entity entity) {
 		timings.onChangeBlockEventPlace().startTiming();
 
 		try {
-			if (!builders.containsKey(player.getUniqueId())) {
+			if(entity instanceof Player) {
+				Player player = (Player) entity;
+				
+				if (builders.containsKey(player.getUniqueId())) {
+					PortalBuilder builder = builders.get(player.getUniqueId());
+
+					for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+						if (transaction.getFinal().getState().getType().equals(BlockTypes.FIRE)) {
+							event.setCancelled(true);
+							break;
+						}
+
+						Location<World> location = transaction.getFinal().getLocation().get();
+
+						if (builder.isFill()) {
+							builder.addFill(location);
+						} else {
+							builder.addFrame(location);
+						}
+					}
+				}
+			} else {
 				for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
 					Location<World> location = transaction.getFinal().getLocation().get();
 
@@ -65,23 +87,6 @@ public class PortalListener {
 
 					event.setCancelled(true);
 					break;
-				}
-				return;
-			}
-			PortalBuilder builder = builders.get(player.getUniqueId());
-
-			for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-				if (transaction.getFinal().getState().getType().equals(BlockTypes.FIRE)) {
-					event.setCancelled(true);
-					break;
-				}
-
-				Location<World> location = transaction.getFinal().getLocation().get();
-
-				if (builder.isFill()) {
-					builder.addFill(location);
-				} else {
-					builder.addFrame(location);
 				}
 			}
 		} finally {
@@ -90,11 +95,26 @@ public class PortalListener {
 	}
 
 	@Listener
-	public void onChangeBlockEventBreakCreate(ChangeBlockEvent.Break event, @Root Player player) {
+	public void onChangeBlockEventBreakCreate(ChangeBlockEvent.Break event, @Root Entity entity) {
 		timings.onChangeBlockEventBreak().startTiming();
 
 		try {
-			if (!builders.containsKey(player.getUniqueId())) {
+			if(entity instanceof Player) {
+				Player player = (Player) entity;
+				
+				if (builders.containsKey(player.getUniqueId())) {
+					PortalBuilder builder = builders.get(player.getUniqueId());
+
+					for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+						Location<World> location = transaction.getFinal().getLocation().get();
+						if (builder.isFill()) {
+							builder.removeFill(location);
+						} else {
+							builder.removeFrame(location);
+						}
+					}
+				}
+			}else {
 				for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
 					Location<World> location = transaction.getFinal().getLocation().get();
 
@@ -104,17 +124,6 @@ public class PortalListener {
 
 					event.setCancelled(true);
 					break;
-				}
-				return;
-			}
-			PortalBuilder builder = builders.get(player.getUniqueId());
-
-			for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-				Location<World> location = transaction.getFinal().getLocation().get();
-				if (builder.isFill()) {
-					builder.removeFill(location);
-				} else {
-					builder.removeFrame(location);
 				}
 			}
 		} finally {
@@ -323,7 +332,7 @@ public class PortalListener {
 	}
 
 	@Listener
-	public void onChangeBlockEventPlace(ChangeBlockEvent.Place event, @Root Player player) {
+	public void onChangeBlockEventPlace(ChangeBlockEvent.Place event, @Root Entity entity) {
 		timings.onChangeBlockEventPlace().startTiming();
 
 		try {
@@ -343,7 +352,7 @@ public class PortalListener {
 	}
 
 	@Listener
-	public void onChangeBlockEventBreak(ChangeBlockEvent.Break event, @Root Player player) {
+	public void onChangeBlockEventBreak(ChangeBlockEvent.Break event, @Root Entity entity) {
 		timings.onChangeBlockEventBreak().startTiming();
 
 		try {
