@@ -31,6 +31,7 @@ import org.spongepowered.api.world.World;
 import com.flowpowered.math.vector.Vector3d;
 import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjp.Main;
+import com.gmail.trentech.pjp.data.mutable.LastLocationData;
 import com.gmail.trentech.pjp.events.ConstructPortalEvent;
 import com.gmail.trentech.pjp.portal.PortalBuilder;
 import com.gmail.trentech.pjp.portal.Portal;
@@ -150,6 +151,10 @@ public class PortalListener {
 				event.setToTransform(new Transform<World>(location));
 			}
 		}
+		
+		try {
+			player.remove(LastLocationData.class);
+		} catch (Exception e) { }
 	}
 
 	@Listener

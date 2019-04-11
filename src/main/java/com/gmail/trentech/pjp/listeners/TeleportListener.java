@@ -1,7 +1,6 @@
 package com.gmail.trentech.pjp.listeners;
 
 import static com.gmail.trentech.pjp.data.Keys.BED_LOCATIONS;
-import static com.gmail.trentech.pjp.data.Keys.LAST_LOCATIONS;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -38,7 +37,6 @@ import com.gmail.trentech.pjc.core.TeleportManager;
 import com.gmail.trentech.pjp.Main;
 import com.gmail.trentech.pjp.commands.CMDBack;
 import com.gmail.trentech.pjp.data.mutable.BedData;
-import com.gmail.trentech.pjp.data.mutable.LastLocationData;
 import com.gmail.trentech.pjp.events.TeleportEvent;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
 import com.gmail.trentech.pjp.utils.Timings;
@@ -165,23 +163,6 @@ public class TeleportListener {
 		try {
 			if (player.hasPermission("pjp.cmd.back")) {
 				CMDBack.players.put(player, event.getFromTransform().getLocation());
-			}
-			
-			World from = event.getFromTransform().getExtent();
-			World to = event.getToTransform().getExtent();
-
-			if (!from.equals(to)) {
-				Map<String, Coordinate> list = new HashMap<>();
-
-				Optional<Map<String, Coordinate>> optionalList = player.get(LAST_LOCATIONS);
-
-				if (optionalList.isPresent()) {
-					list = optionalList.get();
-				}
-				
-				list.put(from.getUniqueId().toString(), new Coordinate(event.getFromTransform().getLocation()));
-				
-				player.offer(new LastLocationData(list));
 			}
 		} finally {
 			timings.onMoveEntityEvent().stopTimingIfSync();
