@@ -20,6 +20,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 
 import com.gmail.trentech.pjc.core.ConfigManager;
 import com.gmail.trentech.pjp.commands.CMDBack;
+import com.gmail.trentech.pjp.data.Keys;
 import com.gmail.trentech.pjp.data.immutable.ImmutableBedData;
 import com.gmail.trentech.pjp.data.immutable.ImmutableHomeData;
 import com.gmail.trentech.pjp.data.immutable.ImmutableLastLocationData;
@@ -72,6 +73,8 @@ public class Main {
 			e.printStackTrace();
 		}
 		
+		new Keys();
+
 		DataRegistration.builder().dataClass(BedData.class).immutableClass(ImmutableBedData.class).builder(new BedData.Builder()).name("bed")
 			.id("pjp_bed").build();
 		DataRegistration.builder().dataClass(LastLocationData.class).immutableClass(ImmutableLastLocationData.class).builder(new LastLocationData.Builder()).name("last_location")
