@@ -29,6 +29,7 @@ import com.gmail.trentech.pjp.data.mutable.BedData;
 import com.gmail.trentech.pjp.data.mutable.HomeData;
 import com.gmail.trentech.pjp.data.mutable.LastLocationData;
 import com.gmail.trentech.pjp.data.mutable.SignPortalData;
+import com.gmail.trentech.pjp.effects.Effect;
 import com.gmail.trentech.pjp.init.Commands;
 import com.gmail.trentech.pjp.init.Common;
 import com.gmail.trentech.pjp.listeners.ButtonListener;
@@ -92,6 +93,7 @@ public class Main {
 		Sponge.getDataManager().registerBuilder(Coordinate.class, new Coordinate.Builder());
 		Sponge.getDataManager().registerBuilder(Command.class, new Command.Builder());
 		Sponge.getDataManager().registerBuilder(Properties.class, new Properties.Builder());
+		Sponge.getDataManager().registerBuilder(Effect.class, new Effect.Builder());
 		
 		Sponge.getDataManager().registerBuilder(Portal.Local.class, new Portal.Local.Builder());	
 		Sponge.getDataManager().registerBuilder(Portal.Server.class, new Portal.Server.Builder());
