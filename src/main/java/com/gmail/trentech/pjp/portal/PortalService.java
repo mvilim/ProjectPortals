@@ -210,7 +210,7 @@ public class PortalService {
 	}
 
 	public void remove(Portal portal) {
-		if(cache.contains(portal.getName())) {
+		if(cache.containsKey(portal.getName())) {
 			cache.remove(portal.getName());
 		}
 		
