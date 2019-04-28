@@ -159,11 +159,12 @@ public class Common {
 					.addExample("/portal particle MyPortal minecraft:redstone_dust 40 minecraft:color BLUE");
 			
 			Usage usageBlock = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
-					.addArgument(Argument.of("<blockType>", "Specifies the BlockType"));
+					.addArgument(Argument.of("<blockType>[:damageValue]", "Specifies the BlockType. Add unsafe damage value for block varients, such as colored wool."));
 			
 			Help portalBlock = new Help("portal block", "block", "Change a portals center block type. Useful for non-solid block types such as water, lava and portal blocks. This can be combined with particles")
 					.setPermission("pjp.cmd.portal.block")
 					.setUsage(usageBlock)
+					.addExample("/portal block MyPortal minecraft:stained_glass_pane:1")
 					.addExample("/portal block MyPortal minecraft:portal");
 			
 			Usage usagePrice = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))

@@ -11,6 +11,8 @@ import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
@@ -59,12 +61,29 @@ public class CommandBlock implements CommandCallable {
 		BlockState blockState;
 		
 		try {
-			Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, args[1]);
+			String[] blockId = args[1].split(":");
+
+			Optional<BlockType> optionalBlockType = Sponge.getRegistry().getType(BlockType.class, blockId[0] + ":" + blockId[1]);
 			
 			if(!optionalBlockType.isPresent()) {
 				throw new CommandException(Text.of(TextColors.RED, "Not a valid BlockType"), true);
 			}
 			blockState = optionalBlockType.get().getDefaultState();
+
+			if(blockId.length == 3) {
+				try {
+					Integer.parseInt(blockId[2]);
+				} catch (Exception e) {
+					throw new CommandException(Text.of(TextColors.RED, blockId[2] + " is not a valid Data Value"));
+				}
+				
+				DataContainer container = blockState.toContainer();
+				DataQuery query = DataQuery.of('/', "UnsafeDamage");
+				
+				container.set(query, Integer.parseInt(blockId[2]));
+				
+				blockState = Sponge.getDataManager().deserialize(BlockState.class, container).get();
+			}
 		} catch(Exception e) {
 			throw new CommandException(getHelp().getUsageText());
 		}
