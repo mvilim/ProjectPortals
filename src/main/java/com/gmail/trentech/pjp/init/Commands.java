@@ -142,7 +142,7 @@ public class Commands {
 		    .description(Text.of("Change a existing portals destination"))
 		    .permission("pjp.cmd.portal.destination")
 		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("name"))), 
+		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)),
 		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
 		    		GenericArguments.flags().flag("b").flag("f")
 		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
