@@ -191,7 +191,7 @@ public class Commands {
 		    .permission("pjp.cmd.portal.command")
 		    .arguments(
 		    		GenericArguments.optional(new PortalElement(Text.of("name"), PortalType.PORTAL)), 
-		    		GenericArguments.optional(GenericArguments.string(Text.of("command"))))
+		    		GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("command"))))
 		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDPrice())
 		    .build();
 	
