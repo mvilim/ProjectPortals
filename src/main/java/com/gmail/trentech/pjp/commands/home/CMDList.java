@@ -56,7 +56,7 @@ public class CMDList implements CommandExecutor {
 
 		for (Entry<String, Portal> entry : list.entrySet()) {
 			String name = entry.getKey().toString();
-			Portal.Local local = (Portal.Local) entry.getValue();
+			Portal local = entry.getValue();
 
 			Builder builder = Text.builder().onHover(TextActions.showText(Text.of(TextColors.WHITE, "Click to teleport to home")));
 

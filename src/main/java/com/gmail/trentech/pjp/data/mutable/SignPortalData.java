@@ -47,13 +47,9 @@ public class SignPortalData extends AbstractSingleData<Portal, SignPortalData, I
 	@Override
 	public Optional<SignPortalData> from(DataContainer container) {
 		if (container.contains(PORTAL.getQuery())) {
-			Optional<Portal.Local> optionalLocal = container.getSerializable(PORTAL.getQuery(), Portal.Local.class);
+			Optional<Portal> portal = container.getSerializable(PORTAL.getQuery(), Portal.class);
 			
-			if(optionalLocal.isPresent()) {
-				return Optional.of(new SignPortalData(optionalLocal.get()));
-			} else {
-				return Optional.of(new SignPortalData(container.getSerializable(PORTAL.getQuery(), Portal.Server.class).get()));
-			}
+			return Optional.of(new SignPortalData(portal.get()));
 		}
 		return Optional.empty();
 	}
@@ -87,13 +83,8 @@ public class SignPortalData extends AbstractSingleData<Portal, SignPortalData, I
 		@Override
 		public Optional<SignPortalData> buildContent(DataView container) throws InvalidDataException {
 			if (container.contains(PORTAL.getQuery())) {			
-				Optional<Portal.Local> optionalLocal = container.getSerializable(PORTAL.getQuery(), Portal.Local.class);
-				
-				if(optionalLocal.isPresent()) {
-					return Optional.of(new SignPortalData(optionalLocal.get()));
-				} else {
-					return Optional.of(new SignPortalData(container.getSerializable(PORTAL.getQuery(), Portal.Server.class).get()));
-				}
+				Optional<Portal> portal = container.getSerializable(PORTAL.getQuery(), Portal.class);
+				return Optional.of(new SignPortalData(portal.get()));
 			}
 
 			return Optional.empty();

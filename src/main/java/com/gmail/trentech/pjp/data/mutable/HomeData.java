@@ -82,13 +82,8 @@ public class HomeData extends AbstractMappedData<String, Portal, HomeData, Immut
 			DataView homes = container.getView(PORTALS.getQuery()).get();
 
 			for (DataQuery home : homes.getKeys(false)) {
-				Optional<Portal.Local> optionalLocal = homes.getSerializable(home, Portal.Local.class);
-				
-				if(optionalLocal.isPresent()) {
-					homeList.put(home.toString(), optionalLocal.get());
-				} else {
-					homeList.put(home.toString(), homes.getSerializable(home, Portal.Server.class).get());
-				}
+				Optional<Portal> portal = homes.getSerializable(home, Portal.class);
+				homeList.put(home.toString(), portal.get());
 			}
 			return Optional.of(new HomeData(homeList));
 		}
@@ -129,13 +124,8 @@ public class HomeData extends AbstractMappedData<String, Portal, HomeData, Immut
 				DataView homes = container.getView(PORTALS.getQuery()).get();
 
 				for (DataQuery home : homes.getKeys(false)) {
-					Optional<Portal.Local> optionalLocal = homes.getSerializable(home, Portal.Local.class);
-					
-					if(optionalLocal.isPresent()) {
-						homeList.put(home.toString(), optionalLocal.get());
-					} else {
-						homeList.put(home.toString(), homes.getSerializable(home, Portal.Server.class).get());
-					}
+					Optional<Portal> portal = homes.getSerializable(home, Portal.class);
+					homeList.put(home.toString(), portal.get());
 				}
 				return Optional.of(new HomeData(homeList));
 			}

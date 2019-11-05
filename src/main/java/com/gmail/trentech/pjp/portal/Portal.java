@@ -24,7 +24,7 @@ import com.gmail.trentech.pjp.portal.features.Coordinate;
 import com.gmail.trentech.pjp.portal.features.Properties;
 import com.gmail.trentech.pjp.rotation.Rotation;
 
-public abstract class Portal implements DataSerializable {
+public class Portal implements DataSerializable {
 
 	private static final DataQuery NAME = of("name");
 	private static final DataQuery FORCE = of("force");
@@ -36,15 +36,19 @@ public abstract class Portal implements DataSerializable {
 	private static final DataQuery PRICE = of("price");
 	private static final DataQuery PERMISSION = of("permission");
 	private static final DataQuery COMMAND = of("command");
-	
+
 	private final PortalType type;
 	private String name;
+	private Optional<Coordinate> coordinate = Optional.empty();
+	private Rotation rotation = Rotation.EAST;
+	private boolean force = false;
 	private double price = 0;
-	private Optional<String> permission = Optional.empty();	
+	private Optional<String> server = Optional.empty();
+	private Optional<String> permission = Optional.empty();
 	private Optional<Properties> properties = Optional.empty();
 	private Optional<Command> command = Optional.empty();
-	
-	protected Portal(String name, PortalType type) {
+
+	public Portal(String name, PortalType type) {
 		this.name = name;
 		this.type = type;
 	}
@@ -61,12 +65,53 @@ public abstract class Portal implements DataSerializable {
 		this.name = name;
 	}
 
+	public Rotation getRotation() {
+		return rotation;
+	}
+
+	public void setRotation(Rotation rotation) {
+		this.rotation = rotation;
+	}
+
+	public Optional<Coordinate> getCoordinate() {
+		return coordinate;
+	}
+
+	public void setCoordinate(Coordinate coordinate) {
+		this.coordinate = Optional.of(coordinate);
+	}
+
+	public boolean force() {
+		return force;
+	}
+
+	public void setForce(boolean force) {
+		this.force = force;
+	}
+
 	public double getPrice() {
 		return price;
 	}
 
 	public void setPrice(double price) {
 		this.price = price;
+	}
+
+	public Optional<String> getServer() {
+		return server;
+	}
+
+	public void setServer(String server) {
+		if (server == null)
+		{
+			throw new RuntimeException("fuck");
+		}
+
+		this.server = Optional.of(server);
+	}
+
+	public void unsetServer() {
+		this.server = Optional.empty();
 	}
 
 	public Optional<Command> getCommand() {
@@ -76,7 +121,7 @@ public abstract class Portal implements DataSerializable {
 	public void setCommand(Command command) {
 		this.command = Optional.of(command);
 	}
-	
+
 	public Optional<String> getPermission() {
 		return permission;
 	}
@@ -85,7 +130,7 @@ public abstract class Portal implements DataSerializable {
 		if(permission.equalsIgnoreCase("none")) {
 			this.permission = Optional.empty();
 		}
-		
+
 		this.permission = Optional.of(permission);
 	}
 
@@ -97,190 +142,68 @@ public abstract class Portal implements DataSerializable {
 		this.properties = Optional.of(properties);
 	}
 
-	public static class Server extends Portal {
+	@Override
+	public DataContainer toContainer() {
+		DataContainer container = DataContainer.createNew()
+			.set(NAME, getName())
+			.set(PORTAL_TYPE, getType().name())
+			.set(ROTATION, getRotation().getName())
+			.set(PRICE, getPrice())
+			.set(FORCE, force());
 
-		private String server;
+		getCoordinate().ifPresent((coordinate) -> container.set(COORDINATE, coordinate));
 
-		public Server(String name, PortalType type, String server) {
-			super(name, type);
-			
-			this.server = server;
-		}
+		getServer().ifPresent((server) -> container.set(SERVER, server));
 
-		public String getServer() {
-			return server;
-		}
+		getPermission().ifPresent((permission) -> container.set(PERMISSION, permission));
 
-		public void setServer(String server) {
-			this.server = server;
-		}
+		getCommand().ifPresent((command) -> container.set(COMMAND, command));
 
-		@Override
-		public int getContentVersion() {
-			return 0;
-		}
+		getProperties().ifPresent((properties) -> container.set(PROPERTIES, properties));
 
-		@Override
-		public DataContainer toContainer() {
-			DataContainer container = DataContainer.createNew().set(NAME, getName()).set(PORTAL_TYPE, getType().name()).set(SERVER, getServer()).set(PRICE, getPrice());
-
-			if (getPermission().isPresent()) {
-				container.set(PERMISSION, getPermission().get());
-			}
-			
-			if (getCommand().isPresent()) {
-				container.set(COMMAND, getCommand().get());
-			}
-			
-			if (getProperties().isPresent()) {
-				container.set(PROPERTIES, getProperties().get());
-			}
-
-			return container;
-		}
-
-		public static class Builder extends AbstractDataBuilder<Server> {
-
-			public Builder() {
-				super(Server.class, 0);
-			}
-
-			@Override
-			protected Optional<Server> buildContent(DataView container) throws InvalidDataException {
-				if (container.contains(NAME, PORTAL_TYPE, SERVER, PRICE)) {
-					String name = container.getString(NAME).get();
-					PortalType type = PortalType.valueOf(container.getString(PORTAL_TYPE).get());
-					String server = container.getString(SERVER).get();
-					Double price = container.getDouble(PRICE).get();
-
-					Portal.Server portal = new Portal.Server(name, type, server);
-					
-					portal.setPrice(price);
-					
-					if(container.contains(PERMISSION)) {
-						portal.setPermission(container.getString(PERMISSION).get());
-					}
-
-					if (container.contains(COMMAND)) {
-						portal.setCommand(container.getSerializable(COMMAND, Command.class).get());
-					}
-					
-					if (container.contains(PROPERTIES)) {
-						portal.setProperties(container.getSerializable(PROPERTIES, Properties.class).get());
-					}
-
-					return Optional.of(portal);
-				}
-
-				return Optional.empty();
-			}
-		}
+		return container;
 	}
 
-	public static class Local extends Portal {
+	@Override
+	public int getContentVersion() {
+		return 1;
+	}
 
-		private Optional<Coordinate> coordinate;
-		private Rotation rotation = Rotation.EAST;
-		private boolean force = false;
-		
-		public Local(String name, PortalType type) {
-			super(name, type);
-		}
+	public static class Builder extends AbstractDataBuilder<Portal> {
 
-
-		public Rotation getRotation() {
-			return rotation;
-		}
-
-		public void setRotation(Rotation rotation) {
-			this.rotation = rotation;
-		}
-		
-		public Optional<Coordinate> getCoordinate() {
-			return coordinate;
-		}
-		
-		public void setCoordinate(Coordinate coordinate) {
-			this.coordinate = Optional.of(coordinate);
-		}
-		
-		public boolean force() {
-			return force;
-		}
-		
-		public void setForce(boolean force) {
-			this.force = force;
+		public Builder() {
+			super(Portal.class, 0);
 		}
 
 		@Override
-		public int getContentVersion() {
-			return 0;
-		}
+		protected Optional<Portal> buildContent(DataView container) throws InvalidDataException {
+			if (container.contains(NAME, PORTAL_TYPE)) {
+				String name = container.getString(NAME).get();
+				PortalType type = PortalType.valueOf(container.getString(PORTAL_TYPE).get());
 
-		@Override
-		public DataContainer toContainer() {
-			DataContainer container = DataContainer.createNew().set(NAME, getName()).set(PORTAL_TYPE, getType().name()).set(ROTATION, getRotation().getName()).set(PRICE, getPrice()).set(FORCE, force());
+				Portal portal = new Portal(name, type);
 
-			if (getPermission().isPresent()) {
-				container.set(PERMISSION, getPermission().get());
-			}
-			
-			if (getProperties().isPresent()) {
-				container.set(PROPERTIES, getProperties().get());
-			}
+				// for backwards compatibility, we consider that some of these fields may be missing
+				container.getSerializable(COORDINATE, Coordinate.class).ifPresent(portal::setCoordinate);
 
-			if (getCoordinate().isPresent()) {
-				container.set(COORDINATE, getCoordinate().get());
-			}
-			
-			if (getCommand().isPresent()) {
-				container.set(COMMAND, getCommand().get());
-			}
-			return container;
-		}
+				container.getString(ROTATION).flatMap(Rotation::get).ifPresent(portal::setRotation);
 
-		public static class Builder extends AbstractDataBuilder<Local> {
+				container.getBoolean(FORCE).ifPresent(portal::setForce);
 
-			public Builder() {
-				super(Local.class, 0);
+				container.getString(SERVER).ifPresent(portal::setServer);
+
+				container.getDouble(PRICE).ifPresent(portal::setPrice);
+
+				container.getString(PERMISSION).ifPresent(portal::setPermission);
+
+				container.getSerializable(COMMAND, Command.class).ifPresent(portal::setCommand);
+
+				container.getSerializable(PROPERTIES, Properties.class).ifPresent(portal::setProperties);
+
+				return Optional.of(portal);
 			}
 
-			@Override
-			protected Optional<Local> buildContent(DataView container) throws InvalidDataException {
-				if (container.contains(NAME, PORTAL_TYPE)) {
-					String name = container.getString(NAME).get();
-					PortalType type = PortalType.valueOf(container.getString(PORTAL_TYPE).get());
-					Rotation rotation = Rotation.get(container.getString(ROTATION).get()).get();
-					Double price = container.getDouble(PRICE).get();
-					boolean force = container.getBoolean(FORCE).get();
-
-					Portal.Local portal = new Portal.Local(name, type);
-					
-					portal.setRotation(rotation);
-					portal.setPrice(price);
-					portal.setForce(force);
-
-					if(container.contains(PERMISSION)) {
-						portal.setPermission(container.getString(PERMISSION).get());
-					}
-
-					if (container.contains(COMMAND)) {
-						portal.setCommand(container.getSerializable(COMMAND, Command.class).get());
-					}
-					
-					if (container.contains(COORDINATE)) {
-						portal.setCoordinate(container.getSerializable(COORDINATE, Coordinate.class).get());
-					}
-					
-					if (container.contains(PROPERTIES)) {
-						portal.setProperties(container.getSerializable(PROPERTIES, Properties.class).get());
-					}
-
-					return Optional.of(portal);
-				}
-
-				return Optional.empty();
-			}
+			return Optional.empty();
 		}
 	}
 
@@ -305,7 +228,7 @@ public abstract class Portal implements DataSerializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
-		}	
+		}
 	}
 
 	public static Portal deserialize(byte[] bytes) {
@@ -319,20 +242,12 @@ public abstract class Portal implements DataSerializable {
 			return null;
 		}
 
-		if(container.contains(SERVER)) {
-			try {
-				return Sponge.getDataManager().deserialize(Server.class, container).get();
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
-		} else {
-			try {
-				return Sponge.getDataManager().deserialize(Local.class, container).get();
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
+
+		try {
+			return Sponge.getDataManager().deserialize(Portal.class, container).get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 }

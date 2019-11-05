@@ -3,6 +3,11 @@ package com.gmail.trentech.pjp.portal;
 import static com.gmail.trentech.pjp.data.Keys.BED_LOCATIONS;
 import static com.gmail.trentech.pjp.data.Keys.LAST_LOCATIONS;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -27,6 +34,12 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.Platform;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.network.RawDataListener;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.gmail.trentech.pjc.core.BungeeManager;
@@ -44,6 +57,113 @@ import com.gmail.trentech.pjp.portal.features.Coordinate.Preset;
 import com.gmail.trentech.pjp.portal.features.Properties;
 
 public class PortalService {
+
+	public static String BUNGEE_TELEPORT = "BungeeeTeleport";
+	public static int TELEPORT_RETRY_MS = 200;
+	public static int TELEPORT_MAX_RETRIES = 25;
+
+	private static class WrappedOutputChannel
+	{
+		private ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+		private DataOutputStream dostream = new DataOutputStream(ostream);
+		private ChannelBuf buf;
+
+		private WrappedOutputChannel(ChannelBuf buf)
+		{
+			this.buf = buf;
+		}
+
+		private DataOutputStream stream()
+		{
+			return dostream;
+		}
+
+		private void write(byte[] bytes) throws IOException
+		{
+			dostream.writeInt(bytes.length);
+			for (byte b : bytes)
+			{
+				dostream.writeByte(b);
+			}
+		}
+
+		private void flush() throws IOException
+		{
+			dostream.flush();
+			ostream.flush();
+			if (ostream.size() < Short.MAX_VALUE)
+			{
+				buf.writeShort((short) ostream.size());
+				buf.writeBytes(ostream.toByteArray());
+			}
+			else {
+				throw new IOException("Wrapped message size is too large");
+			}
+		}
+	}
+
+	private static class WrappedInputChannel
+	{
+		private DataInputStream distream;
+
+		private WrappedInputChannel(ChannelBuf buf)
+		{
+			short len = buf.readShort();
+			distream = new DataInputStream(new ByteArrayInputStream(buf.readBytes(len)));
+		}
+
+		private DataInputStream stream()
+		{
+			return distream;
+		}
+	}
+
+	public void teleportWithRetry(UUID playerId, Portal portal, int counter)
+	{
+		if (counter < TELEPORT_MAX_RETRIES)
+		{
+			Sponge.getScheduler().createTaskBuilder().delay(TELEPORT_RETRY_MS, TimeUnit.MILLISECONDS).execute(() -> {
+				Optional<Player> player = Sponge.getServer().getPlayer(playerId);
+				if (player.isPresent())
+				{
+					execute(player.get(), portal, true);
+				}
+				else{
+					teleportWithRetry(playerId, portal, counter + 1);
+				}
+			}).submit(Main.getPlugin());;
+		}
+		else
+		{
+			System.err.println("Could not find player");
+		}
+	}
+
+	public class BungeeTeleportListener implements RawDataListener {
+		public void handlePayload(ChannelBuf data, RemoteConnection connection, Platform.Type side)
+		{
+			String subChannel = data.readUTF();
+			if (subChannel.equals(BUNGEE_TELEPORT))
+			{
+				WrappedInputChannel wrapped = new WrappedInputChannel(data);
+
+				try {
+					UUID playerId = UUID.fromString(wrapped.stream().readUTF());
+					int nbytes = wrapped.stream().readInt();
+					byte[] pdata = new byte[nbytes];
+					wrapped.stream().readFully(pdata);
+
+					Portal portal = Portal.deserialize(pdata);
+
+					teleportWithRetry(playerId, portal, 0);
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 
 	private static ConcurrentHashMap<String, Portal> cache = new ConcurrentHashMap<>();
 	
@@ -132,12 +252,18 @@ public class PortalService {
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
-					portal = new Portal.Local(name, null);
+					portal = new Portal(name, null);
 					remove(portal);
 				}		
 			}
 
 			connection.close();
+
+			BungeeTeleportListener listener = new BungeeTeleportListener();
+
+			ChannelBinding.RawDataChannel channel = Sponge.getChannelRegistrar().getOrCreateRaw(Main.getPlugin(), "BungeeCord");
+			channel.addListener(Platform.Type.SERVER, listener);
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -242,6 +368,10 @@ public class PortalService {
 	}
 
 	public boolean execute(Player player, Portal portal) {
+		return execute(player, portal, false);
+	}
+
+	public boolean execute(Player player, Portal portal, boolean fromBungee) {
 		AtomicReference<Boolean> bool = new AtomicReference<>(false);
 
 		Optional<Command> optionalCommand = portal.getCommand();
@@ -256,27 +386,46 @@ public class PortalService {
 			}
 		}
 		
-		if (portal instanceof Portal.Server) {
-			Portal.Server server = (Portal.Server) portal;
+		if (portal.getServer().isPresent() && !fromBungee) {
 
 			Consumer<String> consumer = (serverName) -> {
 				Task.builder().execute(() -> {
-					TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, server.getServer(), server.getPrice(), server.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), server));
+					TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, portal.getServer().get(), portal.getPrice(), portal.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), portal));
 
 					if (!Sponge.getEventManager().post(teleportEvent)) {
 						PortalEffect.teleport(player.getLocation());
-						BungeeManager.connect(player, teleportEvent.getDestination());
+
+						ChannelBinding.RawDataChannel bungeeChannel = Sponge.getChannelRegistrar().getOrCreateRaw(Main.getPlugin(), "BungeeCord");
+
+						bungeeChannel.sendTo(player, buffer -> {
+							buffer.writeUTF("Forward")
+								.writeUTF(teleportEvent.getDestination())
+								.writeUTF(BUNGEE_TELEPORT);
+							try {
+								// the bungeecord forwarding protocol requires that we nest data streams in this way (as it allows only a single variable length byte array)
+								WrappedOutputChannel wrapped = new WrappedOutputChannel(buffer);
+								wrapped.stream().writeUTF(player.getUniqueId().toString());
+								wrapped.write(Portal.serialize(portal));
+								wrapped.flush();
+							}
+							catch (Exception e)
+							{
+								e.printStackTrace();
+							}
+						});
+
 						player.setLocation(player.getWorld().getSpawnLocation());
+
+						BungeeManager.connect(player, teleportEvent.getDestination());
 
 						bool.set(true);
 					}
 				}).submit(Main.instance());
 			};
+
 			BungeeManager.getServer(consumer, player);
 		} else {
-			Portal.Local local = (Portal.Local) portal;
-
-			Optional<Coordinate> optionalCoodinate = local.getCoordinate();
+			Optional<Coordinate> optionalCoodinate = portal.getCoordinate();
 			
 			if(optionalCoodinate.isPresent()) {
 				Coordinate coordinate = optionalCoodinate.get();
@@ -335,12 +484,12 @@ public class PortalService {
 				if (optionalSpawnLocation.isPresent()) {
 					Location<World> spawnLocation = optionalSpawnLocation.get();
 		
-					TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, local.getPrice(), local.force(), local.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), local));
+					TeleportEvent.Local teleportEvent = new TeleportEvent.Local(player, player.getLocation(), spawnLocation, portal.getPrice(), portal.force(), portal.getPermission(), portal.getServer(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), portal));
 		
 					if (!Sponge.getEventManager().post(teleportEvent)) {
 						spawnLocation = teleportEvent.getDestination();
 		
-						Vector3d rotation = local.getRotation().toVector3d();
+						Vector3d rotation = portal.getRotation().toVector3d();
 
 						PortalEffect.teleport(player.getLocation());
 						player.setLocationAndRotation(spawnLocation, rotation);

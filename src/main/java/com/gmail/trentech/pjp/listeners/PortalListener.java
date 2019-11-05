@@ -205,16 +205,15 @@ public class PortalListener {
 			}
 			Portal portal = optionalPortal.get();
 
-			if (portal instanceof Portal.Server) {
+			if (portal.getServer().isPresent()) {
 				return;
 			}
-			Portal.Local local = (Portal.Local) portal;
 
 			if (!ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "portal", "teleport_item").getBoolean()) {
 				return;
 			}
 
-			Optional<Coordinate> optionalCoordinate = local.getCoordinate();
+			Optional<Coordinate> optionalCoordinate = portal.getCoordinate();
 			
 			if(!optionalCoordinate.isPresent()) {
 				return;
@@ -228,7 +227,7 @@ public class PortalListener {
 			}
 			Location<World> spawnLocation = optionalSpawnLocation.get();
 
-			Vector3d rotation = local.getRotation().toVector3d();
+			Vector3d rotation = portal.getRotation().toVector3d();
 
 			event.setToTransform(new Transform<World>(spawnLocation.getExtent(), spawnLocation.getPosition(), rotation));
 		} finally {
@@ -262,16 +261,15 @@ public class PortalListener {
 			}
 			Portal portal = optionalPortal.get();
 
-			if (portal instanceof Portal.Server) {
+			if (portal.getServer().isPresent()) {
 				return;
 			}
-			Portal.Local local = (Portal.Local) portal;
 
 			if (!ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "portal", "teleport_mob").getBoolean()) {
 				return;
 			}
 
-			Optional<Coordinate> optionalCoordinate = local.getCoordinate();
+			Optional<Coordinate> optionalCoordinate = portal.getCoordinate();
 			
 			if(!optionalCoordinate.isPresent()) {
 				return;
@@ -288,7 +286,7 @@ public class PortalListener {
 			
 			Location<World> spawnLocation = optionalSpawnLocation.get();
 
-			Vector3d rotation = local.getRotation().toVector3d();
+			Vector3d rotation = portal.getRotation().toVector3d();
 
 			living.setLocationAndRotation(spawnLocation, rotation);
 			

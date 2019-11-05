@@ -23,7 +23,6 @@ import com.gmail.trentech.pjp.Main;
 import com.gmail.trentech.pjp.data.Keys;
 import com.gmail.trentech.pjp.data.mutable.HomeData;
 import com.gmail.trentech.pjp.portal.Portal;
-import com.gmail.trentech.pjp.portal.Portal.Local;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.portal.features.Coordinate;
 
@@ -87,7 +86,7 @@ public class CMDCreate implements CommandExecutor {
 			force = true;
 		}
 		
-		Local portal = new Portal.Local(name, PortalType.HOME);
+		Portal portal = new Portal(name, PortalType.HOME);
 		portal.setCoordinate(new Coordinate(location));
 		portal.setForce(force);
 		

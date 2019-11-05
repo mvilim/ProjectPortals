@@ -38,7 +38,8 @@ public class Commands {
 			elements.add(GenericArguments.string(Text.of("name")));
 		}
 		elements.add(GenericArguments.string(Text.of("destination")));
-		elements.add(GenericArguments.flags().flag("b").flag("f")
+		elements.add(GenericArguments.flags().flag("f")
+			.valueFlag(GenericArguments.string(Text.of("server")), "b")
 			.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
 			.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
 			.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")

@@ -95,8 +95,7 @@ public class Main {
 		Sponge.getDataManager().registerBuilder(Properties.class, new Properties.Builder());
 		Sponge.getDataManager().registerBuilder(Effect.class, new Effect.Builder());
 		
-		Sponge.getDataManager().registerBuilder(Portal.Local.class, new Portal.Local.Builder());	
-		Sponge.getDataManager().registerBuilder(Portal.Server.class, new Portal.Server.Builder());
+		Sponge.getDataManager().registerBuilder(Portal.class, new Portal.Builder());
 
 		Sponge.getEventManager().registerListeners(this, new TeleportListener(timings));
 		

@@ -52,7 +52,7 @@ public class CMDRename implements CommandExecutor {
 		if (!list.containsKey(oldName)) {
 			throw new CommandException(Text.of(TextColors.RED, oldName, " does not exist"));
 		}
-		Portal.Local local = (Portal.Local) list.get(oldName);
+		Portal local = list.get(oldName);
 
 		if (!args.hasAny("newName")) {
 			throw new CommandException(Text.builder().onClick(TextActions.executeCallback(help.execute())).append(help.getUsageText()).build(), false);

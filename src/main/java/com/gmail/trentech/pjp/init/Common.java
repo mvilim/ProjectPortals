@@ -65,12 +65,12 @@ public class Common {
 
 	private static Argument destination()
 	{
-		return Argument.of("<destination>", "Specifies a world or server if [-b] is supplied");
+		return Argument.of("<destination>", "Specifies a world");
 	}
 
 	private static Argument bungee()
 	{
-		return Argument.of("[-b]", "Specifies that <destination> is a bungee connected server");
+		return Argument.of("[-b server]", "Specifies the bungee connected <server> to which to teleport");
 	}
 
 	private static Argument force()
@@ -81,7 +81,7 @@ public class Common {
 	private static Argument coordinates()
 	{
 		return Argument.of("[-c <x,y,z>]", "Specifies the coordinates to set spawn to. Other valid arguments are \"random\",\"bed\" and \"last\". x and z must fall within the range -30,000,000 to 30,000,000 "
-						+ ", and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied");
+						+ ", and y must be within the range -4096 to 4096 inclusive.");
 	}
 
 	private static Argument direction()
@@ -380,6 +380,9 @@ public class Common {
 			}
 			config.getNode("options", "teleport_message", "title").setValue("&2%WORLD%");
 			config.getNode("options", "teleport_message", "sub_title").setValue("&bx: %X%, y: %Y%, z: %Z%");
+		}
+		if (config.getNode("options", "teleport_message", "bungee_title").isVirtual()) {
+			config.getNode("options", "teleport_message", "bungee_title").setValue("&2%SERVER% - %WORLD%");
 		}
 		if (config.getNode("settings", "modules").isVirtual()) {
 			config.getNode("settings", "modules").setComment("Toggle on and off specific features");

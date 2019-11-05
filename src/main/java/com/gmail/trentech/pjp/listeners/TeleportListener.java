@@ -110,6 +110,15 @@ public class TeleportListener {
 		}
 	}
 
+	private static Text format(String text, Location<World> dest, Optional<String> server)
+	{
+		return TextSerializers.FORMATTING_CODE.deserialize(text.replaceAll("%WORLD%", dest.getExtent().getName())
+			.replaceAll("%SERVER%", server.orElse(""))
+			.replaceAll("\\%X%", Integer.toString(dest.getBlockX()))
+			.replaceAll("\\%Y%", Integer.toString(dest.getBlockY()))
+			.replaceAll("\\%Z%", Integer.toString(dest.getBlockZ())));
+	}
+
 	@Listener
 	public void onTeleportEventLocal(TeleportEvent.Local event) {
 		timings.onTeleportEventLocal().startTimingIfSync();
@@ -140,8 +149,10 @@ public class TeleportListener {
 			ConfigurationNode node = ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "teleport_message");
 
 			if (node.getNode("enable").getBoolean()) {
-				Text title = TextSerializers.FORMATTING_CODE.deserialize(node.getNode("title").getString().replaceAll("%WORLD%", dest.getExtent().getName()).replaceAll("\\%X%", Integer.toString(dest.getBlockX())).replaceAll("\\%Y%", Integer.toString(dest.getBlockY())).replaceAll("\\%Z%", Integer.toString(dest.getBlockZ())));
-				Text subTitle = TextSerializers.FORMATTING_CODE.deserialize(node.getNode("sub_title").getString().replaceAll("%WORLD%", dest.getExtent().getName()).replaceAll("\\%X%", Integer.toString(dest.getBlockX())).replaceAll("\\%Y%", Integer.toString(dest.getBlockY())).replaceAll("\\%Z%", Integer.toString(dest.getBlockZ())));
+				Optional<String> server = event.server();
+				String titleString = server.isPresent() ? node.getNode("bungee_title").getString() : node.getNode("title").getString();
+				Text title = format(titleString, dest, server);
+				Text subTitle = format(node.getNode("sub_title").getString(), dest, server);
 
 				player.sendTitle(Title.of(title, subTitle));
 			}

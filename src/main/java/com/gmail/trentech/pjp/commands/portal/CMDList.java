@@ -54,13 +54,13 @@ public class CMDList implements CommandExecutor {
 
 			Text.Builder builder = Text.builder().onHover(TextActions.showText(Text.of(TextColors.GREEN, "Location: ", TextColors.WHITE, portalLocation.getFloorX(), ", ", portalLocation.getFloorY(), ", ", portalLocation.getFloorZ())));
 
-			if (portal instanceof Portal.Server) {
-				Portal.Server server = (Portal.Server) portal;
+			if (portal.getServer().isPresent()) {
+				String server = portal.getServer().get();
 
 				Consumer<List<String>> consumer = (s) -> {
-					if (!s.contains(server.getServer())) {
+					if (!s.contains(server)) {
 						try {
-							throw new CommandException(Text.of(TextColors.RED, server.getServer(), " does not exist"), false);
+							throw new CommandException(Text.of(TextColors.RED, server, " does not exist"), false);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -68,11 +68,9 @@ public class CMDList implements CommandExecutor {
 				};		
 				BungeeManager.getServers(consumer, player);
 
-				builder.append(Text.of(TextColors.GREEN, "Name: ", TextColors.WHITE, name, TextColors.GREEN, " Server Destination: ", TextColors.WHITE, server.getServer()));
+				builder.append(Text.of(TextColors.GREEN, "Name: ", TextColors.WHITE, name, TextColors.GREEN, " Server Destination: ", TextColors.WHITE, server));
 			} else {
-				Portal.Local local = (Portal.Local) portal;
-
-				Optional<Coordinate> optionalCoordinate = local.getCoordinate();
+				Optional<Coordinate> optionalCoordinate = portal.getCoordinate();
 				
 				if(optionalCoordinate.isPresent()) {
 					Coordinate coordinate = optionalCoordinate.get();

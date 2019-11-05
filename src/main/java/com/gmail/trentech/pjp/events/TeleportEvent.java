@@ -55,13 +55,15 @@ public class TeleportEvent extends AbstractEvent implements Cancellable {
 
 		private final Location<World> source;
 		private Location<World> destination;
+		private Optional<String> server;
 		private boolean force;
 		
-		public Local(Player player, Location<World> source, Location<World> destination, double price, boolean force, Optional<String> permission, Cause cause) {
+		public Local(Player player, Location<World> source, Location<World> destination, double price, boolean force, Optional<String> permission, Optional<String> server, Cause cause) {
 			super(player, cause, price, permission);
 			
 			this.source = source;
 			this.setDestination(destination);
+			this.server = server;
 			this.setForce(force);
 		}
 
@@ -83,6 +85,10 @@ public class TeleportEvent extends AbstractEvent implements Cancellable {
 
 		public void setForce(boolean force) {
 			this.force = force;
+		}
+
+		public Optional<String> server() {
+			return server;
 		}
 	}
 

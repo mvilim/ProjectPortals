@@ -54,7 +54,7 @@ public class CMDHome implements CommandExecutor {
 			if (!list.containsKey(name)) {
 				throw new CommandException(Text.of(TextColors.RED, name, " does not exist"));
 			}
-			Portal.Local local = (Portal.Local) list.get(name);
+			Portal portal =  list.get(name);
 
 			if (args.hasAny("player")) {
 				if (!src.hasPermission("pjp.cmd.home.others")) {
@@ -64,7 +64,7 @@ public class CMDHome implements CommandExecutor {
 				player = args.<Player>getOne("player").get();
 			}
 
-			Sponge.getServiceManager().provide(PortalService.class).get().execute(player, local);
+			Sponge.getServiceManager().provide(PortalService.class).get().execute(player, portal);
 
 			return CommandResult.success();
 		}

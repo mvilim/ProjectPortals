@@ -90,40 +90,39 @@ public interface CMDCreateBase extends CommandExecutor {
 		return world.orElseThrow(() -> new CommandException(Text.of(TextColors.RED, destination, " is not loaded or does not exist"), false));
 	}
 
-	default String getServerDestination(CommandSource src, CommandContext args) throws CommandException
+	default Optional<String> getServer(CommandSource src, CommandContext args) throws CommandException
 	{
-		Player player = getPlayer(src);
-		String destination = getRequiredDestination(args);
-		// these are used not for their atomicity, but for their mutability inside a lambda
-		AtomicBoolean destinationExists = new AtomicBoolean(true);
-		AtomicBoolean destinationCurrent = new AtomicBoolean(false);
+		Optional<String> optServer = args.<String>getOne("server");
+		if (optServer.isPresent())
+		{
+			String server = optServer.get();
+			Player player = getPlayer(src);
+			// these are used not for their atomicity, but for their mutability inside a lambda
+			AtomicBoolean destinationExists = new AtomicBoolean(true);
+			AtomicBoolean destinationCurrent = new AtomicBoolean(false);
 
-		Consumer<List<String>> consumer1 = (list) -> {
-			destinationExists.set(list.contains(destination));
+			Consumer<List<String>> consumer1 = (list) -> {
+				destinationExists.set(list.contains(server));
 
-			Consumer<String> consumer2 = (s) -> {
-				destinationCurrent.set(destination.equalsIgnoreCase(s));
+				Consumer<String> consumer2 = (s) -> {
+					destinationCurrent.set(server.equalsIgnoreCase(s));
+				};
+				BungeeManager.getServer(consumer2, player);
 			};
-			BungeeManager.getServer(consumer2, player);
+			BungeeManager.getServers(consumer1, player);
+
+			if (!destinationExists.get())
+			{
+				throw new CommandException(Text.of(TextColors.RED, server, " does not exist"), false);
+			}
+
+			if (destinationCurrent.get())
+			{
+				throw new CommandException(Text.of(TextColors.RED, "Destination cannot be the server you are currently on"), false);
+			}
 		};
-		BungeeManager.getServers(consumer1, player);
 
-		if (!destinationExists.get())
-		{
-			throw new CommandException(Text.of(TextColors.RED, destination, " does not exist"), false);
-		}
-
-		if (destinationCurrent.get())
-		{
-			throw new CommandException(Text.of(TextColors.RED, "Destination cannot be the server you are currently on"), false);
-		}
-
-		return destination;
-	}
-
-	default boolean isServer(CommandContext args)
-	{
-		return args.hasAny("b");
+		return optServer;
 	}
 
 	default Optional<String> getPermission(CommandContext args)
@@ -197,29 +196,21 @@ public interface CMDCreateBase extends CommandExecutor {
 		Player player = getPlayer(src);
 
 		PortalType type = getType();
-		Portal portal;
-		if (isServer(args))
+		Portal portal = new Portal(name, type);
+		if (type.equals(PortalType.WARP) && !getDestination(args).isPresent())
 		{
-			portal = new Portal.Server(name, type, getServerDestination(src, args));
+			portal.setCoordinate(new Coordinate(player.getLocation()));
+			portal.setRotation(Rotation.getClosest(player.getRotation().getFloorY()));
+			portal.setForce(getForce(args));
 		}
-		else
-		{
-			Portal.Local local = new Portal.Local(name, type);
-			if (type.equals(PortalType.WARP) && !getDestination(args).isPresent())
-			{
-				local.setCoordinate(new Coordinate(player.getLocation()));
-				local.setRotation(Rotation.getClosest(player.getRotation().getFloorY()));
-				local.setForce(getForce(args));
-			}
-			else {
-				local.setCoordinate(getCoordinate(args));
-				local.setRotation(getDirection(args));
-				local.setForce(getForce(args));
-			}
-			portal = local;
+		else {
+			portal.setCoordinate(getCoordinate(args));
+			portal.setRotation(getDirection(args));
+			portal.setForce(getForce(args));
 		}
 
 		portal.setPrice(getPrice(args));
+		getServer(src, args).ifPresent(portal::setServer);
 		getPermission(args).ifPresent(portal::setPermission);
 		getCommand(args).ifPresent(portal::setCommand);
 

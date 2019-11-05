@@ -51,7 +51,7 @@ public class CMDDestination implements CommandExecutor {
 		}
 		String destination = args.<String>getOne("destination").get();
 
-		if(portal instanceof Portal.Server) {
+		if(portal.getServer().isPresent()) {
 			if (!args.hasAny("b")) {
 				throw new CommandException(Text.of(TextColors.RED, "Bungee portals cannot be changed to local server portals at this time."), false);
 			}
@@ -74,11 +74,9 @@ public class CMDDestination implements CommandExecutor {
 						}
 					}
 
-					Portal.Server server = (Portal.Server) portal;
-
-					server.setServer(destination);
+					portal.setServer(destination);
 					
-					Sponge.getServiceManager().provideUnchecked(PortalService.class).update(server);
+					Sponge.getServiceManager().provideUnchecked(PortalService.class).update(portal);
 				};
 				BungeeManager.getServer(consumer2, player);
 			};			
@@ -94,37 +92,35 @@ public class CMDDestination implements CommandExecutor {
 				throw new CommandException(Text.of(TextColors.RED, destination, " is not loaded or does not exist"), false);
 			}
 
-			Portal.Local local = (Portal.Local) portal;
-			
 			if (args.hasAny("x,y,z")) {
 				String[] coords = args.<String>getOne("x,y,z").get().split(",");
 
 				if (coords[0].equalsIgnoreCase("random")) {
-					local.setCoordinate(new Coordinate(world.get(), Preset.RANDOM));
+					portal.setCoordinate(new Coordinate(world.get(), Preset.RANDOM));
 				} else if(coords[0].equalsIgnoreCase("bed")) {
-					local.setCoordinate(new Coordinate(world.get(), Preset.BED));
+					portal.setCoordinate(new Coordinate(world.get(), Preset.BED));
 				} else if(coords[0].equalsIgnoreCase("last")) {
-					local.setCoordinate(new Coordinate(world.get(), Preset.LAST_LOCATION));
+					portal.setCoordinate(new Coordinate(world.get(), Preset.LAST_LOCATION));
 				} else {
 					try {
-						local.setCoordinate(new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]))));
+						portal.setCoordinate(new Coordinate(world.get(), new Vector3d(Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]))));
 					} catch (Exception e) {
 						throw new CommandException(Text.of(TextColors.RED, coords.toString(), " is not valid"), true);
 					}
 				}
 			} else {
-				local.setCoordinate(new Coordinate(world.get(), Preset.NONE));
+				portal.setCoordinate(new Coordinate(world.get(), Preset.NONE));
 			}
 
 			if (args.hasAny("direction")) {
-				local.setRotation(args.<Rotation>getOne("direction").get());
+				portal.setRotation(args.<Rotation>getOne("direction").get());
 			}
 
 			if (args.hasAny("f")) {
-				local.setForce(true);
+				portal.setForce(true);
 			}
 
-			Sponge.getServiceManager().provideUnchecked(PortalService.class).update(local);
+			Sponge.getServiceManager().provideUnchecked(PortalService.class).update(portal);
 		}
 		
 		player.sendMessage(Text.of(TextColors.DARK_GREEN, "changed portal destination"));

@@ -52,11 +52,6 @@ public class CommandDirection implements CommandCallable {
 			throw new CommandException(getHelp().getUsageText());
 		}
 
-		if(portal instanceof Portal.Server) {
-			throw new CommandException(Text.of(TextColors.RED, "Direction property has no effect on Bungee Portals"), false);
-		}
-		Portal.Local local = (Portal.Local) portal;
-		
 		Rotation rotation;
 		
 		try {
@@ -72,7 +67,7 @@ public class CommandDirection implements CommandCallable {
 			throw new CommandException(getHelp().getUsageText());
 		}
 		
-		local.setRotation(rotation);
+		portal.setRotation(rotation);
 
 		Sponge.getServiceManager().provide(PortalService.class).get().update(portal);
 		
