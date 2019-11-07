@@ -13,6 +13,11 @@ import com.gmail.trentech.pjp.commands.portal.CommandBlock;
 import com.gmail.trentech.pjp.commands.portal.CommandDirection;
 import com.gmail.trentech.pjp.commands.portal.CommandParticle;
 import com.gmail.trentech.pjp.commands.warp.CMDWarp;
+import com.gmail.trentech.pjp.listeners.ButtonListener;
+import com.gmail.trentech.pjp.listeners.DoorListener;
+import com.gmail.trentech.pjp.listeners.LeverListener;
+import com.gmail.trentech.pjp.listeners.PlateListener;
+import com.gmail.trentech.pjp.listeners.SignListener;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.rotation.Rotation;
 
@@ -237,7 +242,7 @@ public class Commands {
 		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
 		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
 		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
-		    .executor(new CMDObj.Button())
+			.executor(new CMDObj("button", PortalType.BUTTON, ButtonListener.builders))
 		    .build();
 
 	public CommandSpec cmdDoor = CommandSpec.builder()
@@ -251,7 +256,7 @@ public class Commands {
 		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
 		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
 		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
-		    .executor(new CMDObj.Door())
+			.executor(new CMDObj("door", PortalType.DOOR, DoorListener.builders))
 		    .build();
 	
 	public CommandSpec cmdLever = CommandSpec.builder()
@@ -265,7 +270,7 @@ public class Commands {
 		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
 		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
 		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
-		    .executor(new CMDObj.Lever())
+			.executor(new CMDObj("lever", PortalType.LEVER, LeverListener.builders))
 		    .build();
 	
 	public CommandSpec cmdPlate = CommandSpec.builder()
@@ -279,7 +284,7 @@ public class Commands {
 		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
 		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
 		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
-		    .executor(new CMDObj.Plate())
+			.executor(new CMDObj("pressure plate", PortalType.PLATE, PlateListener.builders))
 		    .build();
 
 	public CommandSpec cmdSign = CommandSpec.builder()
@@ -293,6 +298,6 @@ public class Commands {
 		    		.valueFlag(GenericArguments.string(Text.of("price")), "p")
 		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
 		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
-		    .executor(new CMDObj.Sign())
+			.executor(new CMDObj("sign", PortalType.SIGN, SignListener.builders))
 		    .build();
 }
