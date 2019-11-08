@@ -25,27 +25,31 @@ public class Coordinate implements DataSerializable {
 	private static final DataQuery RANDOM = of("random");
 	private static final DataQuery BED_RESPAWN = of("bedrespawn");
 	
-	private World world;
+	private String world;
 	private Optional<Vector3d> vector3d = Optional.empty();
 	private Preset preset = Preset.NONE;
 	
-	public Coordinate(World world, Vector3d vector3d) {
+	public Coordinate(String world, Vector3d vector3d) {
 		this.world = world;
 		this.vector3d = Optional.of(vector3d);
 	}
 	
-	public Coordinate(World world, Preset preset) {
+	public Coordinate(String world, Preset preset) {
 		this.world = world;		
 		this.preset = preset;
 	}
 	
 	public Coordinate(Location<World> location) {
-		this.world = location.getExtent();
+		this.world = location.getExtent().getName();
 		this.vector3d = Optional.of(location.getPosition());
 	}
 	
-	public World getWorld() {
+	public String getWorld() {
 		return world;
+	}
+
+	public Optional<World> getOptionalWorld() {
+		return Sponge.getServer().getWorld(world);
 	}
 	
 	public Preset getPreset() {
@@ -53,11 +57,13 @@ public class Coordinate implements DataSerializable {
 	}
 
 	public Optional<Location<World>> getLocation() {
-		if (vector3d.isPresent()) {
-			return Optional.of(new Location<World>(world, this.vector3d.get()));
-		} else {
-			return Optional.of(world.getSpawnLocation());
-		}
+		return getOptionalWorld().map(world -> {
+			if (vector3d.isPresent()) {
+				return new Location<World>(world, this.vector3d.get());
+			} else {
+				return world.getSpawnLocation();
+			}
+		});
 	}
 	
 	@Override
@@ -67,7 +73,7 @@ public class Coordinate implements DataSerializable {
 
 	@Override
 	public DataContainer toContainer() {
-		DataContainer dataContainer = DataContainer.createNew().set(WORLD, world.getName()).set(PRESET, preset.getName());
+		DataContainer dataContainer = DataContainer.createNew().set(WORLD, world).set(PRESET, preset.getName());
 		
 		if(vector3d.isPresent()) {
 			dataContainer.set(VECTOR3D, DataTranslators.VECTOR_3_D.translate(vector3d.get()));
@@ -85,17 +91,16 @@ public class Coordinate implements DataSerializable {
 		@Override
 		protected Optional<Coordinate> buildContent(DataView container) throws InvalidDataException {
 			if (container.contains(WORLD)) {
-				Optional<World> optionalWorld = Sponge.getServer().getWorld(container.getString(WORLD).get());
+				Optional<String> optionalWorld = container.getString(WORLD);
 
 				if (!optionalWorld.isPresent()) {
 					return Optional.empty();
 				}
-				World world = optionalWorld.get();
 				
 				if (container.contains(VECTOR3D)) {
 					Vector3d vector3d = DataTranslators.VECTOR_3_D.translate(container.getView(VECTOR3D).get());
 					
-					return Optional.of(new Coordinate(world, vector3d));
+					return Optional.of(new Coordinate(optionalWorld.get(), vector3d));
 				}
 				
 				Preset preset;
@@ -112,7 +117,7 @@ public class Coordinate implements DataSerializable {
 					preset = Preset.get(container.getString(PRESET).get());
 				}
 
-				return Optional.of(new Coordinate(world, preset));
+				return Optional.of(new Coordinate(optionalWorld.get(), preset));
 			}
 
 			return Optional.empty();

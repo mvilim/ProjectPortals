@@ -64,7 +64,7 @@ public class CMDList implements CommandExecutor {
 			
 			if(optionalCoordinate.isPresent()) {
 				Coordinate coordinate = optionalCoordinate.get();
-				String worldName = coordinate.getWorld().getName();
+				String worldName = coordinate.getWorld();
 				
 				if(coordinate.getPreset().equals(Preset.BED)) {	
 					builder.onClick(TextActions.runCommand("/home " + name)).append(Text.of(TextColors.GREEN, "Name: ", TextColors.WHITE, name, TextColors.GREEN, " Destination: ", TextColors.WHITE, worldName, ", bed"));

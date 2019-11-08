@@ -281,7 +281,7 @@ public class PortalService {
 			if(optionalCoodinate.isPresent()) {
 				Coordinate coordinate = optionalCoodinate.get();
 				
-				Optional<Location<World>> optionalSpawnLocation;
+				Optional<Location<World>> optionalSpawnLocation = Optional.empty();
 
 				if(coordinate.getPreset().equals(Preset.BED)) {
 					Map<String, Coordinate> list = new HashMap<>();
@@ -292,13 +292,16 @@ public class PortalService {
 						list = optionalList.get();
 					}
 					
-					String worldUuid = coordinate.getWorld().getUniqueId().toString();
-					
-					if(list.containsKey(worldUuid)) {
-						optionalSpawnLocation = list.get(worldUuid).getLocation();
-					}else {
-						optionalSpawnLocation = coordinate.getLocation();
-					}
+					if (coordinate.getOptionalWorld().isPresent())
+					{
+						String worldUuid = coordinate.getOptionalWorld().get().getUniqueId().toString();
+
+						if(list.containsKey(worldUuid)) {
+							optionalSpawnLocation = list.get(worldUuid).getLocation();
+						}else {
+							optionalSpawnLocation = coordinate.getLocation();
+						}
+					};
 				} else if(coordinate.getPreset().equals(Preset.LAST_LOCATION)) {
 					Map<String, Coordinate> list = new HashMap<>();
 
@@ -308,15 +311,23 @@ public class PortalService {
 						list = optionalList.get();
 					}
 					
-					String worldUuid = coordinate.getWorld().getUniqueId().toString();
+					if (coordinate.getOptionalWorld().isPresent())
+					{
+						String worldUuid = coordinate.getOptionalWorld().get().getUniqueId().toString();
+
+						if(list.containsKey(worldUuid)) {
+							optionalSpawnLocation = list.get(worldUuid).getLocation();
+						}else {
+							optionalSpawnLocation = coordinate.getLocation();
+						}
+					};
 					
-					if(list.containsKey(worldUuid)) {
-						optionalSpawnLocation = list.get(worldUuid).getLocation();
-					}else {
-						optionalSpawnLocation = coordinate.getLocation();
-					}
 				} else if(coordinate.getPreset().equals(Preset.RANDOM)) {
-					optionalSpawnLocation = TeleportManager.getRandomLocation(coordinate.getWorld(), ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "random_spawn_radius").getInt());
+
+					if (coordinate.getOptionalWorld().isPresent())
+					{
+						optionalSpawnLocation = TeleportManager.getRandomLocation(coordinate.getOptionalWorld().get(), ConfigManager.get(Main.getPlugin()).getConfig().getNode("options", "random_spawn_radius").getInt());
+					};
 				} else {
 					optionalSpawnLocation = coordinate.getLocation();
 				}
