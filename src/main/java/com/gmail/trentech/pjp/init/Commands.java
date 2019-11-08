@@ -7,6 +7,9 @@ import org.spongepowered.api.text.Text;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
+import java.util.Optional;
 
 import com.gmail.trentech.pjp.commands.CMDObj;
 import com.gmail.trentech.pjp.commands.elements.PortalElement;
@@ -22,6 +25,7 @@ import com.gmail.trentech.pjp.listeners.DoorListener;
 import com.gmail.trentech.pjp.listeners.LeverListener;
 import com.gmail.trentech.pjp.listeners.PlateListener;
 import com.gmail.trentech.pjp.listeners.SignListener;
+import com.gmail.trentech.pjp.portal.Portal;
 import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.rotation.Rotation;
 
@@ -237,40 +241,24 @@ public class Commands {
 		    .child(cmdSave, "save", "s")
 		    .executor(new CMDPortal())
 		    .build();
-	
-	
-	public CommandSpec cmdButton = CommandSpec.builder()
-		    .description(Text.of("Create a new button portal"))
-		    .permission("pjp.cmd.button")
-			.arguments(createArgs(false))
-			.executor(new CMDObj("button", PortalType.BUTTON, ButtonListener.builders))
-		    .build();
 
-	public CommandSpec cmdDoor = CommandSpec.builder()
-		    .description(Text.of("Create a new door portal"))
-		    .permission("pjp.cmd.door")
+	private static CommandSpec createObjCommand(String name, Optional<String> displayName, PortalType type, Map<UUID, Portal> builders)
+	{
+		return CommandSpec.builder()
+			.description(Text.of("Create a new " + displayName.orElse(name) + " portal"))
+			.permission("pjp.cmd." + name)
 			.arguments(createArgs(false))
-			.executor(new CMDObj("door", PortalType.DOOR, DoorListener.builders))
+			.executor(new CMDObj(displayName.orElse(name), type, builders))
 		    .build();
-	
-	public CommandSpec cmdLever = CommandSpec.builder()
-		    .description(Text.of("Create a new lever portal"))
-		    .permission("pjp.cmd.lever")
-			.arguments(createArgs(false))
-			.executor(new CMDObj("lever", PortalType.LEVER, LeverListener.builders))
-		    .build();
-	
-	public CommandSpec cmdPlate = CommandSpec.builder()
-		    .description(Text.of("Create a new pressure plate portal"))
-		    .permission("pjp.cmd.plate")
-			.arguments(createArgs(false))
-			.executor(new CMDObj("pressure plate", PortalType.PLATE, PlateListener.builders))
-		    .build();
+	}
 
-	public CommandSpec cmdSign = CommandSpec.builder()
-		    .description(Text.of("Create a new sign portal"))
-		    .permission("pjp.cmd.sign")
-			.arguments(createArgs(false))
-			.executor(new CMDObj("sign", PortalType.SIGN, SignListener.builders))
-		    .build();
+	public CommandSpec cmdButton = createObjCommand("button", Optional.empty(), PortalType.BUTTON, ButtonListener.builders);
+
+	public CommandSpec cmdDoor = createObjCommand("door", Optional.empty(), PortalType.DOOR, DoorListener.builders);
+
+	public CommandSpec cmdLever = createObjCommand("lever", Optional.empty(), PortalType.LEVER, LeverListener.builders);
+
+	public CommandSpec cmdPlate = createObjCommand("plate", Optional.of("pressure plate"), PortalType.PLATE, PlateListener.builders);
+
+	public CommandSpec cmdSign = createObjCommand("sign", Optional.empty(), PortalType.SIGN, SignListener.builders);
 }
