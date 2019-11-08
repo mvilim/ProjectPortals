@@ -1,5 +1,7 @@
 package com.gmail.trentech.pjp.init;
 
+import java.util.Optional;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -35,7 +37,22 @@ public class Common {
 			e.printStackTrace();
 		}
 	}
-	
+
+	private static void createObjHelp(String name, Optional<String> displayName, ConfigurationNode modules, Usage usagePortal)
+	{
+		if (modules.getNode(name + "s").getBoolean()) {
+			Help obj = new Help(name, name, "Use this command to create a " + displayName.orElse(name) + " that will teleport you to other worlds")
+					.setPermission("pjp.cmd." + name)
+					.setUsage(usagePortal)
+					.addExample("/" + name + " MyWorld -c random")
+					.addExample("/" + name + " MyWorld -c -100,65,254 -d south")
+					.addExample("/" + name + " MyWorld -d southeast")
+					.addExample("/" + name + " MyWorld -c bed")
+					.addExample("/" + name + " MyWorld");
+			Help.register(obj);
+		}
+	}
+
 	public static void initHelp() {
 		ConfigurationNode modules = ConfigManager.get(Main.getPlugin()).getConfig().getNode("settings", "modules");
 		
@@ -46,66 +63,12 @@ public class Common {
 						+ ", and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied"))
 				.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"));
 
-		if (modules.getNode("buttons").getBoolean()) {
-			Help button = new Help("button", "button", "Use this command to create a button that will teleport you to other worlds")
-					.setPermission("pjp.cmd.button")
-					.setUsage(usagePortal)
-					.addExample("/button MyWorld -c random")
-					.addExample("/button MyWorld -c -100,65,254 -d south")
-					.addExample("/button MyWorld -d southeast")
-					.addExample("/button MyWorld -c bed")
-					.addExample("/button MyWorld");
-			
-			Help.register(button);
-		}
-		if (modules.getNode("doors").getBoolean()) {
-			Help door = new Help("door", "door", "Use this command to create a door that will teleport you to other worlds")
-				    .setPermission("pjp.cmd.door")
-					.setUsage(usagePortal)
-					.addExample("/door MyWorld -c random")
-					.addExample("/door MyWorld -c -100,65,254 -d south")
-					.addExample("/door MyWorld -d southeast")
-					.addExample("/door MyWorld -c -100,65,254")
-					.addExample("/door MyWorld");
-			
-			Help.register(door);				
-		}
-		if (modules.getNode("plates").getBoolean()) {
-			Help plate = new Help("plate", "plate", "Use this command to create a pressure plate that will teleport you to other worlds")
-				    .setPermission("pjp.cmd.plate")
-					.setUsage(usagePortal)
-					.addExample("/plate MyWorld -c random")
-					.addExample("/plate MyWorld -c -100,65,254 -d south")
-					.addExample("/plate MyWorld -d southeast")
-					.addExample("/plate MyWorld -c -100,65,254")
-					.addExample("/plate MyWorld");
-			
-			Help.register(plate);
-		}
-		if (modules.getNode("signs").getBoolean()) {
-			Help sign = new Help("sign", "sign", "Use this command to create a sign that will teleport you to other worlds")
-				    .setPermission("pjp.cmd.sign")
-					.setUsage(usagePortal)
-					.addExample("/sign MyWorld -c random")
-					.addExample("/sign MyWorld -c -100,65,254 -d south")
-					.addExample("/sign MyWorld -d southeast")
-					.addExample("/sign MyWorld -c -100,65,254")
-					.addExample("/sign MyWorld");
-			
-			Help.register(sign);
-		}
-		if (modules.getNode("levers").getBoolean()) {
-			Help lever = new Help("lever", "lever", "Use this command to create a lever that will teleport you to other worlds")
-				    .setPermission("pjp.cmd.lever")
-					.setUsage(usagePortal)
-					.addExample("/lever MyWorld -c random")
-					.addExample("/lever MyWorld -c -100,65,254 -d south")
-					.addExample("/lever MyWorld -d southeast")
-					.addExample("/lever MyWorld -c -100,65,254")
-					.addExample("/lever MyWorld");
-			
-			Help.register(lever);
-		}			
+		createObjHelp("button", Optional.empty(), modules, usagePortal);
+		createObjHelp("door", Optional.empty(), modules, usagePortal);
+		createObjHelp("plate", Optional.of("pressure plate"), modules, usagePortal);
+		createObjHelp("sign", Optional.empty(), modules, usagePortal);
+		createObjHelp("lever", Optional.empty(), modules, usagePortal);
+
 		if (modules.getNode("portals").getBoolean()) {
 			Usage usageCreate = new Usage(Argument.of("<name>", "Specifies the name of the new portal"))
 					.addArgument(Argument.of("<destination>", "Specifies a world or server if argument [-b] is supplied"))
