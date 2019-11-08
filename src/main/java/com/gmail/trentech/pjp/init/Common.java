@@ -53,15 +53,65 @@ public class Common {
 		}
 	}
 
+	private static String portalOrWarp(boolean isPortal)
+	{
+		return isPortal ? "portal" : "warp";
+	}
+
+	private static Argument name(boolean isPortal)
+	{
+		return Argument.of("<name>", String.format("Specifies the name of the new %s", portalOrWarp(isPortal)));
+	}
+
+	private static Argument destination()
+	{
+		return Argument.of("<destination>", "Specifies a world or server if [-b] is supplied");
+	}
+
+	private static Argument bungee()
+	{
+		return Argument.of("[-b]", "Specifies that <destination> is a bungee connected server");
+	}
+
+	private static Argument force()
+	{
+		return Argument.of("[-f]", "Skips safe location check. Has no effect with '-c random' or '-c bed'");
+	}
+
+	private static Argument coordinates()
+	{
+		return Argument.of("[-c <x,y,z>]", "Specifies the coordinates to set spawn to. Other valid arguments are \"random\",\"bed\" and \"last\". x and z must fall within the range -30,000,000 to 30,000,000 "
+						+ ", and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied");
+	}
+
+	private static Argument direction()
+	{
+		return Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST");
+	}
+
+	private static Argument price(boolean isPortal)
+	{
+		return Argument.of("[-p <price>]", String.format("Specifies a price player will be charged for using this %s", portalOrWarp(isPortal)));
+	}
+
+	private static Argument command(boolean isPortal)
+	{
+		return Argument.of("[-s <command>]", String.format("Specifies a command to execute when using %s", portalOrWarp(isPortal)));
+	}
+
+	private static Argument permission(boolean isPortal)
+	{
+		return Argument.of("[n <permission>]", String.format("Allow you to assign a custom permission node to a %s. If no permission is provided everyone will have access.", portalOrWarp(isPortal)));
+	}
+
 	public static void initHelp() {
 		ConfigurationNode modules = ConfigManager.get(Main.getPlugin()).getConfig().getNode("settings", "modules");
 		
-		Usage usagePortal = new Usage(Argument.of("<destination>", "Specifies a world or server if [-b] is supplied"))
-				.addArgument(Argument.of("[-b]", "Specifies that <destination> is a bungee connected server"))
-				.addArgument(Argument.of("[-f]", "Skips safe location check. Has no effect with '-c random' or '-c bed'"))
-				.addArgument(Argument.of("[-c <x,y,z>]", "Specifies the coordinates to set spawn to. Other valid arguments are \"random\",\"bed\" and \"last\". x and z must fall within the range -30,000,000 to 30,000,000 "
-						+ ", and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied"))
-				.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"));
+		Usage usagePortal = new Usage(destination())
+				.addArgument(bungee())
+				.addArgument(force())
+				.addArgument(coordinates())
+				.addArgument(direction());
 
 		createObjHelp("button", Optional.empty(), modules, usagePortal);
 		createObjHelp("door", Optional.empty(), modules, usagePortal);
@@ -70,13 +120,15 @@ public class Common {
 		createObjHelp("lever", Optional.empty(), modules, usagePortal);
 
 		if (modules.getNode("portals").getBoolean()) {
-			Usage usageCreate = new Usage(Argument.of("<name>", "Specifies the name of the new portal"))
-					.addArgument(Argument.of("<destination>", "Specifies a world or server if argument [-b] is supplied"))
-					.addArgument(Argument.of("[-b]", "Specifies that <destination> is a bungee connected server"))
-					.addArgument(Argument.of("[-f]", "Skips safe location check. Has no effect with '-c random' or '-c bed'"))
-					.addArgument(Argument.of("[-c <x,y,z>]", "Specifies the coordinates to set spawn to. x and z must fall within the range -30,000,000 to 30,000,000 (exclusive, without the "
-							+ "commas), and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied"))
-					.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"));
+			Usage usageCreate = new Usage(name(true))
+				.addArgument(destination())
+				.addArgument(bungee())
+				.addArgument(force())
+				.addArgument(coordinates())
+				.addArgument(direction())
+				.addArgument(price(true))
+				.addArgument(command(true))
+				.addArgument(permission(true));
 
 			Help portalCreate = new Help("portal create", "create", "Use this command to create a portal that will teleport you to other worlds")
 					.setPermission("pjp.cmd.portal.create")
@@ -88,7 +140,7 @@ public class Common {
 					.addExample("/portal create MyPortal MyWorld");
 			
 			Usage usageDestination = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
-					.addArgument(Argument.of("<destination>", "Specifies a world or server if is bungee portal"))
+					.addArgument(destination())
 					.addArgument(Argument.of("[x,y,z]", "Specifies the coordinates to set spawn to. x and z must fall within the range -30,000,000 to 30,000,000 (exclusive, without the "
 							+ "commas), and y must be within the range -4096 to 4096 inclusive. This is ignored if is bungee portal"));
 			
@@ -229,20 +281,19 @@ public class Common {
 			Help.register(home);
 		}
 		if (modules.getNode("warps").getBoolean()) {
-			Usage usagecreate = new Usage(Argument.of("<name>", "Specifies the name of the new warp point"))
-					.addArgument(Argument.of("<destination>", "Specifies a world or server if [-b] is supplied"))
-					.addArgument(Argument.of("[-f]", "Skips safe location check. Has no effect with '-c random' or '-c bed'"))
-					.addArgument(Argument.of("[-b]", "Specifies that <destination> is a bungee connected server"))
-					.addArgument(Argument.of("[-c <x,y,z>]", "Specifies the coordinates to set spawn to. x and z must fall within the range -30,000,000 to 30,000,000 (exclusive, without the "
-							+ "commas), and y must be within the range -4096 to 4096 inclusive. This is ignored if [-b] is supplied"))
-					.addArgument(Argument.of("[-d <direction>]", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"))
-					.addArgument(Argument.of("[-p <price>]", "Specifies a price player will be charged for using this warp"))
-					.addArgument(Argument.of("[-s <command>]", "Specifies a command to execute when using portal"))
-					.addArgument(Argument.of("[n <permission>]", "Allow you to assign a custom permission node to a portal. If no permission is provided everyone will have access."));
+			Usage usageCreate = new Usage(name(false))
+				.addArgument(destination())
+				.addArgument(bungee())
+				.addArgument(force())
+				.addArgument(coordinates())
+				.addArgument(direction())
+				.addArgument(price(false))
+				.addArgument(command(false))
+				.addArgument(permission(false));
 			
 			Help warpCreate = new Help("warp create", "create", "Use this command to create a warp that will teleport you to other worlds")
 					.setPermission("pjp.cmd.warp.create")
-					.setUsage(usagecreate)
+					.setUsage(usageCreate)
 					.addExample("/warp create Lobby MyWorld")
 					.addExample("/warp create Lobby MyWorld -c -100,65,254")
 					.addExample("/warp create Random MyWorld -c random")
