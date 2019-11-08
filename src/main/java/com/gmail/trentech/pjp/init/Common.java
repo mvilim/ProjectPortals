@@ -141,15 +141,22 @@ public class Common {
 			
 			Usage usageDestination = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(destination())
-					.addArgument(Argument.of("[x,y,z]", "Specifies the coordinates to set spawn to. x and z must fall within the range -30,000,000 to 30,000,000 (exclusive, without the "
-							+ "commas), and y must be within the range -4096 to 4096 inclusive. This is ignored if is bungee portal"));
+					.addArgument(bungee())
+					.addArgument(force())
+					.addArgument(coordinates())
+					.addArgument(direction())
+					.addArgument(price(true))
+					.addArgument(command(true))
+					.addArgument(permission(true));
 			
 			Help portalDestination = new Help("portal destination", "destination", "Change as existing portals destination")
 					.setPermission("pjp.cmd.portal.destination")
 					.setUsage(usageDestination)
-					.addExample("/portal destination Skyland 100,65,400")
-					.addExample("/portal destination Server1")
-					.addExample("/portal destination MyPortal DIM1");
+					.addExample("/portal destination MyPortal MyWorld -c -100,65,254")
+					.addExample("/portal destination MyPortal MyWorld -c C:random")
+					.addExample("/portal destination MyPortal MyWorld -c -100,65,254 -d south")
+					.addExample("/portal destination MyPortal MyWorld -d southeast")
+					.addExample("/portal destination MyPortal MyWorld");
 			
 			Usage usageDirection = new Usage(Argument.of("<name>", "Specifies the name of the targeted portal"))
 					.addArgument(Argument.of("<direction>", "Specifies the direction player will face upon teleporting. The following can be used: NORTH, NORTH_WEST, WEST, SOUTH_WEST, SOUTH, SOUTH_EAST, EAST, NORTH_EAST"));

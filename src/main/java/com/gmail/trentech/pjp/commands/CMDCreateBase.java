@@ -46,6 +46,18 @@ public interface CMDCreateBase extends CommandExecutor {
 		return Optional.empty();
 	}
 
+	default Optional<Portal> getPortal(String name)
+	{
+		return Sponge.getServiceManager().provide(PortalService.class).get().get(name, getType());
+	}
+
+	default void checkNameExistence(String name) throws CommandException
+	{
+		if (getPortal(name).isPresent()) {
+			throw new CommandException(Text.of(TextColors.RED, name, " already exists"), false);
+		}
+	}
+
 	default String getName(CommandContext args) throws CommandException
 	{
 		if (!args.hasAny("name")) {
@@ -53,9 +65,7 @@ public interface CMDCreateBase extends CommandExecutor {
 		}
 		String name = args.<String>getOne("name").get().toLowerCase();
 
-		if (Sponge.getServiceManager().provide(PortalService.class).get().get(name, getType()).isPresent()) {
-			throw new CommandException(Text.of(TextColors.RED, name, " already exists"), false);
-		}
+		checkNameExistence(name);
 
 		return name;
 	}
@@ -73,26 +83,38 @@ public interface CMDCreateBase extends CommandExecutor {
 		return (Player) src;
 	}
 
-	default Optional<String> getDestination(CommandContext args) throws CommandException
+	default Optional<String> getDestinationArg(CommandContext args) throws CommandException
 	{
 		return args.<String>getOne("destination");
 	}
 
 	default String getRequiredDestination(CommandContext args) throws CommandException
 	{
-		return getDestination(args).orElseThrow(() -> new CommandException(Text.builder().onClick(TextActions.executeCallback(getHelp().execute())).append(getHelp().getUsageText()).build(), false));
+		return getDestinationArg(args).orElseThrow(() -> new CommandException(Text.builder().onClick(TextActions.executeCallback(getHelp().execute())).append(getHelp().getUsageText()).build(), false));
 	}
 
-	default World getLocalDestination(CommandContext args) throws CommandException
+	default String getDestination(CommandContext args) throws CommandException
 	{
 		String destination = getRequiredDestination(args);
-		Optional<World> world = Sponge.getServer().getWorld(destination);
-		return world.orElseThrow(() -> new CommandException(Text.of(TextColors.RED, destination, " is not loaded or does not exist"), false));
+		if (!getServerArg(args).isPresent())
+		{
+			Optional<World> world = Sponge.getServer().getWorld(destination);
+			if (!world.isPresent())
+			{
+				throw new CommandException(Text.of(TextColors.RED, destination, " is not loaded or does not exist"), false);
+			}
+		}
+		return destination;
+	}
+
+	default Optional<String> getServerArg(CommandContext args)
+	{
+		return args.<String>getOne("server");
 	}
 
 	default Optional<String> getServer(CommandSource src, CommandContext args) throws CommandException
 	{
-		Optional<String> optServer = args.<String>getOne("server");
+		Optional<String> optServer = getServerArg(args);
 		if (optServer.isPresent())
 		{
 			String server = optServer.get();
@@ -166,7 +188,7 @@ public interface CMDCreateBase extends CommandExecutor {
 
 	default Coordinate getCoordinate(CommandContext args) throws CommandException
 	{
-		World world = getLocalDestination(args);
+		String world = getDestination(args);
 		if (args.hasAny("x,y,z")) {
 			String[] coords = args.<String>getOne("x,y,z").get().split(",");
 
@@ -197,7 +219,7 @@ public interface CMDCreateBase extends CommandExecutor {
 
 		PortalType type = getType();
 		Portal portal = new Portal(name, type);
-		if (type.equals(PortalType.WARP) && !getDestination(args).isPresent())
+		if (type.equals(PortalType.WARP) && !getDestinationArg(args).isPresent())
 		{
 			portal.setCoordinate(new Coordinate(player.getLocation()));
 			portal.setRotation(Rotation.getClosest(player.getRotation().getFloorY()));
