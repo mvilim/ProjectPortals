@@ -1,8 +1,12 @@
 package com.gmail.trentech.pjp.init;
 
+import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
+
+import java.util.List;
+import java.util.ArrayList;
 
 import com.gmail.trentech.pjp.commands.CMDObj;
 import com.gmail.trentech.pjp.commands.elements.PortalElement;
@@ -22,19 +26,29 @@ import com.gmail.trentech.pjp.portal.Portal.PortalType;
 import com.gmail.trentech.pjp.rotation.Rotation;
 
 public class Commands {
+	private static CommandElement[] createArgs(boolean named)
+	{
+		List<CommandElement> elements = new ArrayList<>();
+		if (named)
+		{
+			elements.add(GenericArguments.string(Text.of("name")));
+		}
+		elements.add(GenericArguments.string(Text.of("destination")));
+		elements.add(GenericArguments.flags().flag("b").flag("f")
+			.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
+			.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
+			.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
+			.valueFlag(GenericArguments.string(Text.of("command")), "s")
+			.valueFlag(GenericArguments.string(Text.of("permission")), "n")
+			.buildWith(GenericArguments.none()));
+
+		return elements.toArray(new CommandElement[elements.size()]);
+	}
 
 	private CommandSpec cmdWarpCreate = CommandSpec.builder()
 		    .description(Text.of("Create a new warp point"))
 		    .permission("pjp.cmd.warp.create")
-		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("name"))), 
-		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.flags().flag("b").flag("f")
-		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
-		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-    				.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
-    				.valueFlag(GenericArguments.string(Text.of("command")), "s")
-    				.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
+			.arguments(createArgs(true))
 		    .executor(new com.gmail.trentech.pjp.commands.warp.CMDCreate())
 		    .build();
 	
@@ -133,13 +147,7 @@ public class Commands {
 	private CommandSpec cmdPortalCreate = CommandSpec.builder()
 		    .description(Text.of("Create a new portal"))
 		    .permission("pjp.cmd.portal.create")
-		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("name"))), 
-		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.flags().flag("b").flag("f")
-		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
-		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-		    		.buildWith(GenericArguments.none()))
+			.arguments(createArgs(true))
 		    .executor(new com.gmail.trentech.pjp.commands.portal.CMDCreate())
 		    .build();
 
@@ -234,70 +242,35 @@ public class Commands {
 	public CommandSpec cmdButton = CommandSpec.builder()
 		    .description(Text.of("Create a new button portal"))
 		    .permission("pjp.cmd.button")
-		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.flags().flag("b").flag("f")
-		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
-		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
-		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
-		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
+			.arguments(createArgs(false))
 			.executor(new CMDObj("button", PortalType.BUTTON, ButtonListener.builders))
 		    .build();
 
 	public CommandSpec cmdDoor = CommandSpec.builder()
 		    .description(Text.of("Create a new door portal"))
 		    .permission("pjp.cmd.door")
-		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.flags().flag("b").flag("f")
-		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
-		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
-		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
-		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
+			.arguments(createArgs(false))
 			.executor(new CMDObj("door", PortalType.DOOR, DoorListener.builders))
 		    .build();
 	
 	public CommandSpec cmdLever = CommandSpec.builder()
 		    .description(Text.of("Create a new lever portal"))
 		    .permission("pjp.cmd.lever")
-		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.flags().flag("b").flag("f")
-		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
-		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
-		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
-		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
+			.arguments(createArgs(false))
 			.executor(new CMDObj("lever", PortalType.LEVER, LeverListener.builders))
 		    .build();
 	
 	public CommandSpec cmdPlate = CommandSpec.builder()
 		    .description(Text.of("Create a new pressure plate portal"))
 		    .permission("pjp.cmd.plate")
-		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.flags().flag("b").flag("f")
-		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
-		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-		    		.valueFlag(GenericArguments.doubleNum(Text.of("price")), "p")
-		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
-		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
+			.arguments(createArgs(false))
 			.executor(new CMDObj("pressure plate", PortalType.PLATE, PlateListener.builders))
 		    .build();
 
 	public CommandSpec cmdSign = CommandSpec.builder()
 		    .description(Text.of("Create a new sign portal"))
 		    .permission("pjp.cmd.sign")
-		    .arguments(
-		    		GenericArguments.optional(GenericArguments.string(Text.of("destination"))), 
-		    		GenericArguments.flags().flag("b").flag("f")
-		    		.valueFlag(GenericArguments.string(Text.of("x,y,z")), "c")
-		    		.valueFlag(GenericArguments.enumValue(Text.of("direction"), Rotation.class), "d")
-		    		.valueFlag(GenericArguments.string(Text.of("price")), "p")
-		    		.valueFlag(GenericArguments.string(Text.of("command")), "s")
-		    		.valueFlag(GenericArguments.string(Text.of("permission")), "n").buildWith(GenericArguments.none()))
+			.arguments(createArgs(false))
 			.executor(new CMDObj("sign", PortalType.SIGN, SignListener.builders))
 		    .build();
 }
