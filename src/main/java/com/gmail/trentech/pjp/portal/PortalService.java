@@ -393,32 +393,47 @@ public class PortalService {
 					TeleportEvent.Server teleportEvent = new TeleportEvent.Server(player, serverName, portal.getServer().get(), portal.getPrice(), portal.getPermission(), Cause.of(EventContext.builder().add(EventContextKeys.PLAYER, player).build(), portal));
 
 					if (!Sponge.getEventManager().post(teleportEvent)) {
-						PortalEffect.teleport(player.getLocation());
+						double yawRad = Math.toRadians(player.getRotation().getY());
+						double shiftDistance = 2.0;
+						double xShift = Math.sin(yawRad) * shiftDistance;
+						double zShift = Math.cos(yawRad) * shiftDistance;
 
-						ChannelBinding.RawDataChannel bungeeChannel = Sponge.getChannelRegistrar().getOrCreateRaw(Main.getPlugin(), "BungeeCord");
+						Location<World> outsidePortal = player.getLocation().add(xShift, 0, zShift);
 
-						bungeeChannel.sendTo(player, buffer -> {
-							buffer.writeUTF("Forward")
-								.writeUTF(teleportEvent.getDestination())
-								.writeUTF(BUNGEE_TELEPORT);
-							try {
-								// the bungeecord forwarding protocol requires that we nest data streams in this way (as it allows only a single variable length byte array)
-								WrappedOutputChannel wrapped = new WrappedOutputChannel(buffer);
-								wrapped.stream().writeUTF(player.getUniqueId().toString());
-								wrapped.write(Portal.serialize(portal));
-								wrapped.flush();
-							}
-							catch (Exception e)
-							{
-								e.printStackTrace();
-							}
-						});
+						Optional<Location<World>> optionalLocation = Sponge.getGame().getTeleportHelper().getSafeLocation(outsidePortal);
 
-						player.setLocation(player.getWorld().getSpawnLocation());
+						if (optionalLocation.isPresent() || portal.force())
+						{
+							PortalEffect.teleport(player.getLocation());
 
-						BungeeManager.connect(player, teleportEvent.getDestination());
+							ChannelBinding.RawDataChannel bungeeChannel = Sponge.getChannelRegistrar().getOrCreateRaw(Main.getPlugin(), "BungeeCord");
 
-						bool.set(true);
+							bungeeChannel.sendTo(player, buffer -> {
+								buffer.writeUTF("Forward")
+									.writeUTF(teleportEvent.getDestination())
+									.writeUTF(BUNGEE_TELEPORT);
+								try {
+									// the bungeecord forwarding protocol requires that we nest data streams in this way (as it allows only a single variable length byte array)
+									WrappedOutputChannel wrapped = new WrappedOutputChannel(buffer);
+									wrapped.stream().writeUTF(player.getUniqueId().toString());
+									wrapped.write(Portal.serialize(portal));
+									wrapped.flush();
+								}
+								catch (Exception e)
+								{
+									e.printStackTrace();
+								}
+							});
+
+							player.setLocation(optionalLocation.orElse(outsidePortal));
+
+							BungeeManager.connect(player, teleportEvent.getDestination());
+
+							bool.set(true);
+						}
+						else {
+							player.sendMessage(Text.of(Text.builder().color(TextColors.RED).append(Text.of("Unsafe backup spawn point detected. Create portal with -f to force unsafe teleports"))));
+						}
 					}
 				}).submit(Main.instance());
 			};
