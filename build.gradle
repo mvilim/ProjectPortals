@@ -34,7 +34,7 @@ sponge {
 }
 
 dependencies {
-    implementation "com.github.TrenTech:ProjectCore:7.x-SNAPSHOT"
+    compile "com.github.TrenTech:ProjectCore:bleeding-SNAPSHOT"
 }
 
 signing {
